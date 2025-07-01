@@ -1,0 +1,15 @@
+01:26:43.864 [INFO] cli_log::init: Starting polymarket v0.1.0 with log level DEBUG
+01:26:43.864 [INFO] polymarket: Starting Polymarket Orderbook Viewer...
+01:26:43.900 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
+01:26:44.242 [INFO] polymarket::app: Loading next batch of markets... (total so far: 500)
+01:26:44.472 [INFO] polymarket::app: Loading next batch of markets... (total so far: 1000)
+01:26:44.638 [INFO] polymarket::app: Reached end of markets pagination
+01:26:44.640 [INFO] polymarket::app: Successfully loaded 1448 markets total
+01:26:46.515 [INFO] polymarket: Loading orderbook for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+01:26:46.584 [INFO] polymarket::app: Loaded price history for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+01:26:46.714 [INFO] polymarket::app: Starting WebSocket connection for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+01:26:46.714 [INFO] polymarket::app: WebSocket started for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+01:26:46.716 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+01:26:46.893 [DEBUG] tungstenite::handshake::client: Client handshake done.
+01:26:46.893 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+01:26:46.921 [INFO] polymarket::websocket::clob: 📊 Book Update: 17 bids, 19 asks for asset 5176310665

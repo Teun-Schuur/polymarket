@@ -1,86 +1,226 @@
-# Polymarket Orderbook Viewer
+# Polymarket Real-time Orderbook Viewer
 
-A real-time Polymarket orderbook viewer built in Rust with a terminal user interface.
+A high-performance, real-time terminal user interface (TUI) for monitoring Polymarket prediction markets, built in Rust. Features live orderbook data, price charts, Bitcoin integration, and an intuitive interface for market analysis.
 
-## Setup
+## 🌟 Features
 
-1. **Clone the repository** (if not already done)
+### Core Functionality
+- **Real-time Orderbook Data**: Live streaming from Polymarket's CLOB API with WebSocket support
+- **Market Discovery**: Browse and search through all active Polymarket prediction markets
+- **Multi-token Support**: View orderbooks for both outcomes of binary prediction markets
+- **Price History**: Track market price movements over time with interactive charts
+- **Bitcoin Integration**: Live Bitcoin price feeds for crypto-related markets
 
-2. **Install Rust** (if not already installed)
+### User Interface
+- **Fast Terminal UI**: Built with Ratatui for responsive, terminal-based interaction
+- **Tabbed Interface**: Switch between orderbook view and price history
+- **Interactive Charts**: Visual orderbook depth charts and price history graphs
+- **Search & Filter**: Quickly find markets with real-time search functionality
+- **Responsive Design**: Adapts to different terminal sizes
+
+### Technical Features
+- **Modular Architecture**: Clean separation of concerns with organized module structure
+- **WebSocket Streaming**: Real-time data updates with fallback to REST API
+- **Error Handling**: Robust error recovery and user-friendly error messages
+- **Performance Optimized**: Efficient data structures and minimal memory footprint
+- **Cross-platform**: Works on Linux, macOS, and Windows
+
+## 📋 Prerequisites
+
+- **Rust** (1.70 or later): Install from [rustup.rs](https://rustup.rs/)
+- **Terminal**: Any modern terminal emulator
+- **Network**: Internet connection for API access
+
+## 🚀 Quick Start
+
+1. **Clone the repository**
    ```bash
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   git clone <repository-url>
+   cd polymarket
    ```
 
-3. **Set up environment variables**
+2. **Set up environment variables**
    ```bash
    cp .env.example .env
    ```
    
-   Then edit `.env` and add your private key:
+   Edit `.env` and add your Ethereum private key:
    ```env
    PK=your_private_key_here_without_0x_prefix
    ```
    
-   **Important:** Never commit your `.env` file or share your private key!
+   ⚠️ **Security Note**: Never commit your `.env` file or share your private key!
 
-4. **Build the project**
+3. **Build and run**
    ```bash
-   cargo build --release
+   cargo run --release
    ```
 
-## Usage
-
-Run the orderbook viewer:
-```bash
-cargo run
-```
-
-Or with specific options:
-```bash
-cargo run -- --help
-cargo run -- --token-id "your_token_id_here"
-cargo run -- --interval 0.5 --depth 20
-```
-
-## Controls
+## 🎮 Controls & Navigation
 
 ### Market Selector
-- `↑↓`: Navigate markets
-- `PgUp/PgDn`: Fast scroll through markets
-- `Enter`: Select market
-- `/`: Search markets
-- `Esc`: Exit search mode
-- `q`: Quit
+| Key | Action |
+|-----|--------|
+| `↑↓` | Navigate through markets |
+| `PgUp/PgDn` | Fast scroll (page up/down) |
+| `Enter` | Select market |
+| `/` | Open search mode |
+| `Esc` | Exit search mode |
+| `q` | Quit application |
 
 ### Token Selector
-- `↑↓`: Navigate tokens
-- `PgUp/PgDn`: Fast scroll through tokens
-- `Enter`: Select token
-- `Backspace`: Back to market selector
-- `q`: Quit
+| Key | Action |
+|-----|--------|
+| `↑↓` | Navigate between token outcomes |
+| `Enter` | Select token to view orderbook |
+| `Backspace` | Return to market selector |
+| `q` | Quit application |
 
 ### Orderbook View
-- `m`: Return to market selector
-- `r`: Refresh orderbook
-- `q`: Quit
+| Key | Action |
+|-----|--------|
+| `◄►` or `h/l` | Switch between tabs (Orderbook/Price History) |
+| `m` | Return to market selector |
+| `r` | Refresh data |
+| `q` | Quit application |
 
-## Features
+## 🏗️ Project Structure
 
-- Real-time orderbook data from Polymarket
-- Interactive market and token selection
-- Search functionality for markets
-- Visual depth chart
-- Market statistics display
-- Fast terminal-based UI
+```
+src/
+├── main.rs              # Application entry point
+├── lib.rs               # Library exports
+├── app.rs               # Core application logic and state management
+├── cli.rs               # Command-line interface definitions
+├── data.rs              # Data structures and models
+├── ui/                  # User interface modules
+│   ├── mod.rs           # UI module exports
+│   ├── layout.rs        # Main layout and rendering logic
+│   ├── selectors.rs     # Market and token selection interfaces
+│   ├── orderbook.rs     # Orderbook display components
+│   ├── charts.rs        # Chart rendering (price history, depth, Bitcoin)
+│   └── components.rs    # Reusable UI components
+└── websocket/           # WebSocket communication
+    ├── mod.rs           # WebSocket module exports
+    ├── clob.rs          # Polymarket CLOB WebSocket client
+    └── bitcoin.rs       # Bitcoin price WebSocket client
 
-## Environment Variables
+external/
+└── polymarket-rs-client/ # Polymarket API client library
+```
 
-- `PK`: Your Ethereum private key (required)
-- You can also specify a different environment variable name using `--private-key-env`
+## ⚙️ Configuration
 
-## Command Line Options
+### Environment Variables
+- `PK`: Your Ethereum private key (required for authenticated API calls)
 
-- `--token-id, -t`: Specific token ID to monitor
-- `--interval, -i`: Update interval in seconds (default: 0.1)
-- `--depth, -d`: Number of orders to show per side (default: 10)
-- `--private-key-env`: Environment variable name for private key (default: "PK")
+### Command Line Options
+```bash
+cargo run -- [OPTIONS]
+
+Options:
+  -t, --token-id <TOKEN_ID>      Specific token ID to monitor directly
+  -i, --interval <SECONDS>       Update interval in seconds [default: 0.1]
+  -d, --depth <NUMBER>           Number of orders to show per side [default: 10]
+      --private-key-env <VAR>    Environment variable name for private key [default: "PK"]
+  -h, --help                     Print help information
+  -V, --version                  Print version information
+```
+
+### Examples
+```bash
+# Start with default settings
+cargo run
+
+# Monitor a specific token
+cargo run -- --token-id "28159086305716095520316688285780453361496934489894720579037520569842658771360"
+
+# Adjust update frequency and depth
+cargo run -- --interval 0.5 --depth 20
+
+# Use custom environment variable for private key
+cargo run -- --private-key-env MY_PRIVATE_KEY
+```
+
+## 🔧 Development
+
+### Building from Source
+```bash
+# Debug build
+cargo build
+
+# Release build (optimized)
+cargo build --release
+
+# Run tests
+cargo test
+
+# Check code formatting
+cargo fmt --check
+
+# Run clippy lints
+cargo clippy
+```
+
+### Module Dependencies
+- **ratatui**: Terminal user interface framework
+- **tokio**: Async runtime for WebSocket and HTTP clients
+- **clap**: Command-line argument parsing
+- **serde**: JSON serialization/deserialization
+- **chrono**: Date and time handling
+- **crossterm**: Cross-platform terminal manipulation
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**"No markets found"**
+- Check your internet connection
+- Verify the Polymarket API is accessible
+- Try running with `-i 1` for slower updates
+
+**WebSocket connection errors**
+- Application will fall back to REST API automatically
+- Check firewall settings if WebSocket connections are blocked
+
+**Private key errors**
+- Ensure your `.env` file exists and contains a valid private key
+- Verify the private key format (without `0x` prefix)
+- Check file permissions on `.env`
+
+**Build errors**
+- Update Rust to the latest stable version: `rustup update`
+- Clear build cache: `cargo clean && cargo build`
+
+## 📊 Market Data
+
+The application displays:
+- **Bid/Ask Orders**: Live order book with prices and sizes
+- **Market Statistics**: Spread, tick size, volume, last update time
+- **Price Charts**: Historical price movements with timestamps
+- **Bitcoin Integration**: Live BTC price for crypto-related markets
+- **Market Status**: Active vs. closed market indicators
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes with proper tests
+4. Follow Rust formatting: `cargo fmt`
+5. Run clippy: `cargo clippy`
+6. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🔗 Related Resources
+
+- [Polymarket](https://polymarket.com/) - Prediction market platform
+- [Polymarket API Documentation](https://docs.polymarket.com/) - Official API docs
+- [Ratatui](https://ratatui.rs/) - Terminal UI framework
+- [Rust Documentation](https://doc.rust-lang.org/) - Rust programming language
+
+---
+
+**Note**: This tool is for educational and analysis purposes. Always do your own research before making any trading decisions.

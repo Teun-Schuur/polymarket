@@ -1,3 +1,4 @@
+use cli_log::warn;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -31,6 +32,7 @@ pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area:
         orderbook.chart_needs_recentering = false;
         (start_tick, constrained_end_tick)
     } else {
+        warn!("Invalid orderbook state: best_bid: {best_bid}, best_ask: {best_ask}");
         let all_prices: Vec<f64> = bids.iter().chain(asks.iter()).map(|o| o.price).filter(|&p| (0.0..=1.0).contains(&p)).collect();
         if all_prices.is_empty() { return; }
         let min_order_price = all_prices.iter().copied().fold(f64::INFINITY, f64::min);
@@ -44,7 +46,10 @@ pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area:
         (min_tick, max_tick)
     };
 
-    if max_tick <= min_tick { return; }
+    if max_tick <= min_tick { 
+        warn!("Invalid tick range: min_tick: {min_tick}, max_tick: {max_tick}");
+        return; 
+    }
 
     let min_price = min_tick as f64 * orderbook.tick_size;
     let num_ticks = (max_tick - min_tick) as usize;
@@ -89,30 +94,40 @@ pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area:
         }
     }
 
-    // Create data points, but only where orders actually exist
-    let bid_data: Vec<(f64, f64)> = bid_depths.iter().enumerate()
-        .filter_map(|(i, &depth)| {
-            let price = (min_tick as f64 + i as f64) * orderbook.tick_size;
-            // Only include bid data points at or below the best bid
-            if depth > 0.0 && price <= best_bid {
-                Some((price, depth))
-            } else {
-                None
-            }
-        })
-        .collect();
+    // Create block-style data points
+    let half_tick = orderbook.tick_size / 2.0;
+    
+    let mut bid_data: Vec<(f64, f64)> = Vec::new();
+    for (i, &depth) in bid_depths.iter().enumerate() {
+        let price = (min_tick as f64 + i as f64) * orderbook.tick_size;
+        // Only include bid data points at or below the best bid
+        if depth > 0.0 && price <= best_bid {
+            // For bids: go from tick center to left edge (bid width extends left)
+            bid_data.push((price - half_tick, depth));
+            bid_data.push((price, depth));
+        }
+    }
+    // Add line from best bid to 0 at the spread
+    if !bid_data.is_empty() {
+        bid_data.push((best_bid, bid_data.last().unwrap().1));
+        bid_data.push((best_bid, 0.0));
+    }
 
-    let ask_data: Vec<(f64, f64)> = ask_depths.iter().enumerate()
-        .filter_map(|(i, &depth)| {
-            let price = (min_tick as f64 + i as f64) * orderbook.tick_size;
-            // Only include ask data points at or above the best ask
-            if depth > 0.0 && price >= best_ask {
-                Some((price, depth))
-            } else {
-                None
-            }
-        })
-        .collect();
+    let mut ask_data: Vec<(f64, f64)> = Vec::new();
+    for (i, &depth) in ask_depths.iter().enumerate() {
+        let price = (min_tick as f64 + i as f64) * orderbook.tick_size;
+        // Only include ask data points at or above the best ask
+        if depth > 0.0 && price >= best_ask {
+            // For asks: go from tick center to right edge (ask width extends right)
+            ask_data.push((price, depth));
+            ask_data.push((price + half_tick, depth));
+        }
+    }
+    // Add line from best ask to 0 at the spread
+    if !ask_data.is_empty() {
+        ask_data.insert(0, (best_ask, 0.0));
+        ask_data.insert(1, (best_ask, ask_data[2].1));
+    }
 
     if bid_data.is_empty() && ask_data.is_empty() { return; }
 

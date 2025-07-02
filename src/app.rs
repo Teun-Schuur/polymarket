@@ -406,12 +406,8 @@ impl App {
             return false;
         }
         
-        // With WebSocket, only poll API every 30 seconds for backup
-        if self.current_websocket.is_some() {
-            self.last_orderbook_update.elapsed() >= Duration::from_secs(30)
-        } else {
-            true
-        }
+        // If we have an active WebSocket, we don't need to poll the API
+        self.current_websocket.is_none()
     }
 
     // Navigation methods

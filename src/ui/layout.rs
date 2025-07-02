@@ -1,16 +1,15 @@
 use ratatui::{
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
     Frame,
 };
 
 use crate::app::App;
-use super::{selectors::{render_market_selector, render_token_selector}, orderbook::render_orderbook, charts::render_market_price_history, components::{render_tab_bar, centered_rect}};
+use super::{selectors::{render_market_selector, render_token_selector, render_event_market_selector, render_event_token_selector}, orderbook::render_orderbook, charts::render_market_price_history, components::{render_tab_bar, centered_rect}};
 
 pub fn render_ui(f: &mut Frame, app: &mut App) {
-    if app.show_market_selector || app.show_token_selector {
+    if app.show_market_selector || app.show_event_market_selector || app.show_token_selector {
         // Show header when in selectors
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -32,19 +31,28 @@ pub fn render_ui(f: &mut Frame, app: &mut App) {
         // Main content
         if app.show_market_selector {
             render_market_selector(f, app, chunks[1]);
+        } else if app.show_event_market_selector {
+            render_event_market_selector(f, app, chunks[1]);
         } else if app.show_token_selector {
-            render_token_selector(f, app, chunks[1]);
+            // Check if we're in event mode or regular market mode
+            if app.market_selector_tab == crate::app::MarketSelectorTab::Events {
+                render_event_token_selector(f, app, chunks[1]);
+            } else {
+                render_token_selector(f, app, chunks[1]);
+            }
         }
 
         // Footer
         let footer_text = if app.show_market_selector {
             if app.search_mode {
-                format!("Search: {} | ↑↓: Navigate | PgUp/PgDn: Fast scroll | Enter: Select | Esc: Exit search | q: Quit", app.search_query)
+                format!("Search: {} | ↑↓: Navigate | Tab: Switch tabs | PgUp/PgDn: Fast scroll | Enter: Select | Esc: Exit search | q: Quit", app.search_query)
             } else {
-                "↑↓: Navigate | PgUp/PgDn: Fast scroll | Enter: Select | /: Search | q: Quit".to_string()
+                "↑↓: Navigate | Tab: Switch tabs | PgUp/PgDn: Fast scroll | Enter: Select | /: Search | q: Quit".to_string()
             }
+        } else if app.show_event_market_selector {
+            "↑↓: Navigate | Enter: Select | Backspace: Back to Events | q: Quit".to_string()
         } else {
-            "↑↓: Navigate | PgUp/PgDn: Fast scroll | Enter: Select | Backspace: Back to Markets | q: Quit".to_string()
+            "↑↓: Navigate | PgUp/PgDn: Fast scroll | Enter: Select | Backspace: Back | q: Quit".to_string()
         };
         
         let footer = Paragraph::new(footer_text.as_str())

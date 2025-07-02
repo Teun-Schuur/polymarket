@@ -1,15 +1,58 @@
-02:23:58.032 [INFO] cli_log::init: Starting polymarket v0.1.0 with log level DEBUG
-02:23:58.032 [INFO] polymarket: Starting Polymarket Orderbook Viewer...
-02:23:58.066 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
-02:23:58.400 [INFO] polymarket::app: Loading next batch of markets... (total so far: 500)
-02:23:58.573 [INFO] polymarket::app: Loading next batch of markets... (total so far: 1000)
-02:23:58.752 [INFO] polymarket::app: Reached end of markets pagination
-02:23:58.754 [INFO] polymarket::app: Successfully loaded 1436 markets total
-02:24:00.306 [INFO] polymarket: Loading orderbook for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
-02:24:00.368 [INFO] polymarket::app: Loaded price history for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
-02:24:00.498 [INFO] polymarket::app: Starting WebSocket connection for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
-02:24:00.498 [INFO] polymarket::app: WebSocket started for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
-02:24:00.500 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
-02:24:00.655 [DEBUG] tungstenite::handshake::client: Client handshake done.
-02:24:00.655 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
-02:24:00.677 [INFO] polymarket::websocket::clob: 📊 Book Update: 18 bids, 16 asks for asset 5176310665
+18:39:20.959 [INFO] cli_log::init: Starting polymarket v0.1.0 with log level DEBUG
+18:39:20.959 [INFO] polymarket: Starting Polymarket Orderbook Viewer...
+18:39:20.993 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
+18:39:21.306 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 500)
+18:39:21.493 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 1000)
+18:39:21.672 [INFO] polymarket::app::core: Reached end of markets pagination
+18:39:21.673 [DEBUG] reqwest::connect: starting new connection: https://gamma-api.polymarket.com/
+18:39:23.133 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 0
+18:39:24.199 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 500
+18:39:24.604 [INFO] polymarket::app::core: Loaded 205 gamma events starting from index 1000
+18:39:24.604 [INFO] polymarket::app::core: Reached end of gamma events pagination or max limit reached
+18:39:24.609 [INFO] polymarket::app::core: Successfully loaded 1468 markets total
+18:39:28.319 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.827 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
+18:39:28.827 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.827 [INFO] polymarket: Loading orderbook for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.917 [INFO] polymarket::app::core: Loaded price history for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.985 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.985 [INFO] polymarket::app::websocket: WebSocket started for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:28.987 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+18:39:29.165 [DEBUG] tungstenite::handshake::client: Client handshake done.
+18:39:29.165 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+18:39:29.207 [INFO] polymarket::websocket::clob: 📊 Book Update: 1 bids, 18 asks for asset 7858192948
+18:39:37.304 [DEBUG] polymarket::app::navigation: Using regular market logic for token ID retrieval
+18:39:37.304 [INFO] polymarket: Loading orderbook for token ID: 71904738656699421933730827487713504709985649928293793736161425136099824407722
+18:39:37.377 [INFO] polymarket::app::core: Loaded price history for token ID: 71904738656699421933730827487713504709985649928293793736161425136099824407722
+18:39:37.451 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 71904738656699421933730827487713504709985649928293793736161425136099824407722
+18:39:37.451 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
+18:39:37.451 [INFO] polymarket::app::websocket: WebSocket started for token: 71904738656699421933730827487713504709985649928293793736161425136099824407722
+18:39:37.453 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+18:39:37.622 [DEBUG] tungstenite::handshake::client: Client handshake done.
+18:39:37.623 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+18:39:37.649 [INFO] polymarket::websocket::clob: 📊 Book Update: 22 bids, 34 asks for asset 7190473865
+18:39:42.035 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.589 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
+18:39:42.589 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.589 [INFO] polymarket: Loading orderbook for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.657 [INFO] polymarket::app::core: Loaded price history for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.729 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.729 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
+18:39:42.729 [INFO] polymarket::app::websocket: WebSocket started for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
+18:39:42.731 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+18:39:42.890 [DEBUG] tungstenite::handshake::client: Client handshake done.
+18:39:42.890 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+18:39:42.936 [INFO] polymarket::websocket::clob: 📊 Book Update: 1 bids, 18 asks for asset 7858192948
+22:42:34.023 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=1, market=1, token=0, token_id=65169719036027461615076939623072752036413957557228979466513748009268529163529
+22:42:35.421 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
+22:42:35.421 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=1, market=1, token=1, token_id=77500813573580231263178622118821514796289032802262823575735749669996931865796
+22:42:35.421 [INFO] polymarket: Loading orderbook for token ID: 77500813573580231263178622118821514796289032802262823575735749669996931865796
+22:42:35.421 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
+22:42:35.505 [INFO] polymarket::app::core: Loaded price history for token ID: 77500813573580231263178622118821514796289032802262823575735749669996931865796
+22:42:35.579 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 77500813573580231263178622118821514796289032802262823575735749669996931865796
+22:42:35.579 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
+22:42:35.579 [INFO] polymarket::app::websocket: WebSocket started for token: 77500813573580231263178622118821514796289032802262823575735749669996931865796
+22:42:35.580 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+22:42:35.722 [DEBUG] tungstenite::handshake::client: Client handshake done.
+22:42:35.723 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+22:42:35.743 [INFO] polymarket::websocket::clob: 📊 Book Update: 7 bids, 9 asks for asset 7750081357

@@ -78,15 +78,16 @@ pub fn render_orderbook(f: &mut Frame, app: &mut App, area: Rect) {
         if should_show_bitcoin {
             // Clone Bitcoin price data to avoid borrow checker issues
             let bitcoin_price_data = if let Some(ref btc_arc) = app.bitcoin_price {
-                if let Ok(btc_data) = btc_arc.lock() {
-                    // Debug log occasionally
-                    if !btc_data.history.points.is_empty() && btc_data.history.points.len() % 50 == 0 {
-                        info!("UI: Bitcoin price data available with {} points, current: ${:.2}", 
-                              btc_data.history.points.len(), btc_data.price);
+                match btc_arc.lock() {
+                    Ok(btc_data) => {
+                        // Debug log occasionally
+                        if !btc_data.history.points.is_empty() && btc_data.history.points.len() % 50 == 0 {
+                            info!("UI: Bitcoin price data available with {} points, current: ${:.2}", 
+                                  btc_data.history.points.len(), btc_data.price);
+                        }
+                        Some(btc_data.clone())
                     }
-                    Some(btc_data.clone())
-                } else {
-                    None
+                    Err(_) => None
                 }
             } else {
                 None

@@ -1,9 +1,9 @@
 use cli_log::warn;
 use ratatui::{
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    layout::{Alignment, Rect},
+    style::{Color, Style},
     text::Span,
-    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Paragraph, Tabs},
+    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Paragraph},
     Frame,
     symbols,
 };

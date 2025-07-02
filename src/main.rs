@@ -19,6 +19,7 @@ use clap::Parser;
 
 // Import from our local library modules
 use polymarket::{App, Cli, render_ui};
+use polymarket::app::MarketSelectorTab;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -136,7 +137,10 @@ async fn run_app<B: Backend>(
                             if matches!(key.code, KeyCode::Char('h')) {
                                 app.add_search_char('h');
                             }
-                        } else if !app.show_market_selector && !app.show_token_selector {
+                        } else if app.show_market_selector {
+                            // Switch between market selector tabs
+                            app.previous_market_selector_tab();
+                        } else if !app.show_market_selector && !app.show_event_market_selector && !app.show_token_selector {
                             // Only navigate tabs when viewing orderbook
                             app.previous_tab();
                         }
@@ -146,7 +150,10 @@ async fn run_app<B: Backend>(
                             if matches!(key.code, KeyCode::Char('l')) {
                                 app.add_search_char('l');
                             }
-                        } else if !app.show_market_selector && !app.show_token_selector {
+                        } else if app.show_market_selector {
+                            // Switch between market selector tabs
+                            app.next_market_selector_tab();
+                        } else if !app.show_market_selector && !app.show_event_market_selector && !app.show_token_selector {
                             // Only navigate tabs when viewing orderbook
                             app.next_tab();
                         }
@@ -165,37 +172,70 @@ async fn run_app<B: Backend>(
                     }
                     KeyCode::Up => {
                         if app.show_market_selector {
-                            app.previous_market();
+                            match app.market_selector_tab {
+                                MarketSelectorTab::AllMarkets => app.previous_market(),
+                                MarketSelectorTab::Events => app.previous_event(),
+                            }
+                        } else if app.show_event_market_selector {
+                            app.previous_event_market();
                         } else if app.show_token_selector {
-                            app.previous_token();
+                            if app.market_selector_tab == MarketSelectorTab::Events {
+                                app.previous_event_token();
+                            } else {
+                                app.previous_token();
+                            }
                         }
                     }
                     KeyCode::Down => {
                         if app.show_market_selector {
-                            app.next_market();
+                            match app.market_selector_tab {
+                                MarketSelectorTab::AllMarkets => app.next_market(),
+                                MarketSelectorTab::Events => app.next_event(),
+                            }
+                        } else if app.show_event_market_selector {
+                            app.next_event_market();
                         } else if app.show_token_selector {
-                            app.next_token();
+                            if app.market_selector_tab == MarketSelectorTab::Events {
+                                app.next_event_token();
+                            } else {
+                                app.next_token();
+                            }
                         }
                     }
                     KeyCode::PageUp => {
                         if app.show_market_selector {
-                            app.page_up_markets();
+                            match app.market_selector_tab {
+                                MarketSelectorTab::AllMarkets => app.page_up_markets(),
+                                MarketSelectorTab::Events => app.page_up_events(),
+                            }
                         } else if app.show_token_selector {
                             app.page_up_tokens();
                         }
                     }
                     KeyCode::PageDown => {
                         if app.show_market_selector {
-                            app.page_down_markets();
+                            match app.market_selector_tab {
+                                MarketSelectorTab::AllMarkets => app.page_down_markets(),
+                                MarketSelectorTab::Events => app.page_down_events(),
+                            }
                         } else if app.show_token_selector {
                             app.page_down_tokens();
                         }
                     }
                     KeyCode::Enter => {
                         if app.show_market_selector {
-                            app.select_market();
+                            match app.market_selector_tab {
+                                MarketSelectorTab::AllMarkets => app.select_market(),
+                                MarketSelectorTab::Events => app.select_event(),
+                            }
+                        } else if app.show_event_market_selector {
+                            app.select_event_market();
                         } else if app.show_token_selector {
-                            app.select_token();
+                            if app.market_selector_tab == MarketSelectorTab::Events {
+                                app.select_token(); // This will work for event tokens too
+                            } else {
+                                app.select_token();
+                            }
                             if let Some(token_id) = app.get_current_token_id() {
                                 info!("Loading orderbook for token ID: {token_id}");
                                 // Load initial orderbook data via API
@@ -208,8 +248,20 @@ async fn run_app<B: Backend>(
                     }
                     KeyCode::Backspace => {
                         if app.show_token_selector {
+                            if app.market_selector_tab == MarketSelectorTab::Events {
+                                // Go back to event market selector
+                                app.show_event_market_selector = true;
+                                app.show_token_selector = false;
+                            } else {
+                                // Go back to main market selector
+                                app.show_market_selector = true;
+                                app.show_token_selector = false;
+                            }
+                            app.needs_redraw = true;
+                        } else if app.show_event_market_selector {
+                            // Go back to main market selector (events tab)
                             app.show_market_selector = true;
-                            app.show_token_selector = false;
+                            app.show_event_market_selector = false;
                             app.needs_redraw = true;
                         } else if app.search_mode {
                             app.remove_search_char();

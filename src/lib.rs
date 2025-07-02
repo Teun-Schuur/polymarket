@@ -6,7 +6,7 @@ pub mod ui;
 pub mod websocket;
 
 // Re-export commonly used types
-pub use app::App;
+pub use app::{App, MarketSelectorTab};
 pub use cli::Cli;
 pub use data::{MarketInfo, MarketStats, OrderBookData, SimpleOrder, TokenInfo, BitcoinPrice};
 pub use ui::render_ui;

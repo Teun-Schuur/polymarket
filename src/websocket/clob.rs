@@ -80,8 +80,6 @@ pub enum PolymarketWebSocketMessage {
 
 // Callback type for handling structured messages
 pub type StructuredMessageCallback = Box<dyn Fn(PolymarketWebSocketMessage) + Send>;
-// Legacy callback for raw messages
-pub type MessageCallback = Box<dyn Fn(Message) + Send>;
 
 pub struct PolymarketWebSocket {
     sender: Sender<Message>,
@@ -89,127 +87,6 @@ pub struct PolymarketWebSocket {
 }
 
 impl PolymarketWebSocket {
-    pub fn connect(
-        channel_type: String,
-        auth: Option<serde_json::Value>,
-        filter_ids: Vec<String>,
-        callback: MessageCallback,
-    ) -> Self {
-        let (tx, _rx) = channel();
-        let channel = channel_type.clone();
-        let filter: Vec<String> = filter_ids;
-
-        let handle = thread::spawn(move || {
-            let rt = tokio::runtime::Runtime::new().unwrap();
-            rt.block_on(async {
-                let url = format!("wss://ws-subscriptions-clob.polymarket.com/ws/{channel}");
-                info!("Connecting to WebSocket at: {url}");
-                
-                let (ws_stream, _) = match connect_async(&url).await {
-                    Ok(stream) => {
-                        info!("✅ Successfully connected to WebSocket at: {url}");
-                        stream
-                    },
-                    Err(e) => {
-                        warn!("❌ Failed to connect to WebSocket: {e}");
-                        warn!("Make sure you have TLS support enabled. Try: cargo add tokio-tungstenite --features native-tls");
-                        return;
-                    }
-                };
-                
-                let (mut write, mut read) = ws_stream.split();
-
-                // Send subscription message
-                let sub_msg = match channel_type.as_str() {
-                    "user" => json!({
-                        "type": "user",
-                        "markets": filter,
-                        "auth": auth.as_ref().map(|auth| {
-                            json!({
-                                "apiKey": auth["apiKey"],
-                                "secret": auth["secret"],
-                                "passphrase": auth["passphrase"]
-                            })
-                        }).expect("Auth is required for user channel")
-                    }),
-                    "market" => json!({
-                        "type": "market",
-                        "assets_ids": filter
-                    }),
-                    _ => panic!("Invalid channel type"),
-                };
-                
-                if let Err(e) = write.send(Message::Text(sub_msg.to_string().into())).await {
-                    warn!("Failed to send subscription message: {e:?}");
-                    return;
-                }
-
-                // Message processing loop with improved error handling
-                while let Some(msg_result) = read.next().await {
-                    match msg_result {
-                        Ok(msg) => {
-                            match &msg {
-                                Message::Text(_) | Message::Binary(_) => {
-                                    callback(msg.clone());
-                                }
-                                Message::Ping(data) => {
-                                    if let Err(e) = write.send(Message::Pong(data.clone())).await {
-                                        warn!("Failed to send pong: {e}");
-                                        break;
-                                    }
-                                }
-                                Message::Pong(_) => {
-                                    // Pong received, connection is alive
-                                }
-                                Message::Close(close_frame) => {
-                                    if let Some(frame) = close_frame {
-                                        warn!("WebSocket closed with code: {} reason: {}", frame.code, frame.reason);
-                                    } else {
-                                        warn!("WebSocket closed without close frame");
-                                    }
-                                    break;
-                                }
-                                Message::Frame(_) => {
-                                    // Raw frame, usually handled internally
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            match e {
-                                tokio_tungstenite::tungstenite::Error::Protocol(protocol_error) => {
-                                    warn!("WebSocket protocol error: {protocol_error}");
-                                    // Try to reconnect on protocol errors
-                                    warn!("Connection lost, attempting to reconnect...");
-                                    break;
-                                }
-                                tokio_tungstenite::tungstenite::Error::ConnectionClosed => {
-                                    warn!("WebSocket connection closed by remote");
-                                    break;
-                                }
-                                _ => {
-                                    warn!("WebSocket error: {e}");
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Attempt graceful closure
-                if let Err(e) = write.send(Message::Close(None)).await {
-                    warn!("Failed to send close message: {e}");
-                }
-                
-                warn!("WebSocket connection ended for channel: {channel}");
-            });
-        });
-
-        Self {
-            sender: tx,
-            thread_handle: handle,
-        }
-    }
-
     pub fn send(&self, message: Message) {
         self.sender.send(message).unwrap();
     }

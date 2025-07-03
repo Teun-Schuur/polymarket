@@ -4,6 +4,7 @@ use anyhow::Result;
 use polymarket_rs_client::{ClobClient, Event, Market};
 use rust_decimal::prelude::*;
 use std::{
+    collections::HashMap,
     env,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
@@ -62,9 +63,11 @@ pub struct App {
     pub websocket_reconnect_attempts: u32,
     pub last_websocket_attempt: Instant,
     
-    // Bitcoin price tracking
+    // Bitcoin price tracking (backward compatibility)
     pub bitcoin_price: Option<Arc<Mutex<crate::data::BitcoinPrice>>>,
-    pub bitcoin_websocket_active: bool,
+    // Multi-crypto price tracking
+    pub crypto_prices: std::collections::HashMap<crate::websocket::CryptoSymbol, Arc<Mutex<crate::data::CryptoPrice>>>,
+    pub crypto_websocket_active: std::collections::HashMap<crate::websocket::CryptoSymbol, bool>,
 }
 
 impl App {
@@ -123,7 +126,8 @@ impl App {
             last_price_history_update: Instant::now(),
             price_history_update_interval: Duration::from_secs(1),
             bitcoin_price: None,
-            bitcoin_websocket_active: false,
+            crypto_prices: HashMap::new(),
+            crypto_websocket_active: HashMap::new(),
         })
     }
 
@@ -453,7 +457,7 @@ impl App {
         }
 
         super::price_history::update_price_history_if_needed(self);
-        super::price_history::update_bitcoin_price_if_needed(self);
+        super::price_history::update_crypto_prices_if_needed(self);
         
         Ok(())
     }

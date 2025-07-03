@@ -1,58 +1,478 @@
-18:39:20.959 [INFO] cli_log::init: Starting polymarket v0.1.0 with log level DEBUG
-18:39:20.959 [INFO] polymarket: Starting Polymarket Orderbook Viewer...
-18:39:20.993 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
-18:39:21.306 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 500)
-18:39:21.493 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 1000)
-18:39:21.672 [INFO] polymarket::app::core: Reached end of markets pagination
-18:39:21.673 [DEBUG] reqwest::connect: starting new connection: https://gamma-api.polymarket.com/
-18:39:23.133 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 0
-18:39:24.199 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 500
-18:39:24.604 [INFO] polymarket::app::core: Loaded 205 gamma events starting from index 1000
-18:39:24.604 [INFO] polymarket::app::core: Reached end of gamma events pagination or max limit reached
-18:39:24.609 [INFO] polymarket::app::core: Successfully loaded 1468 markets total
-18:39:28.319 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.827 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
-18:39:28.827 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.827 [INFO] polymarket: Loading orderbook for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.917 [INFO] polymarket::app::core: Loaded price history for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.985 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.985 [INFO] polymarket::app::websocket: WebSocket started for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:28.987 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
-18:39:29.165 [DEBUG] tungstenite::handshake::client: Client handshake done.
-18:39:29.165 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
-18:39:29.207 [INFO] polymarket::websocket::clob: 📊 Book Update: 1 bids, 18 asks for asset 7858192948
-18:39:37.304 [DEBUG] polymarket::app::navigation: Using regular market logic for token ID retrieval
-18:39:37.304 [INFO] polymarket: Loading orderbook for token ID: 71904738656699421933730827487713504709985649928293793736161425136099824407722
-18:39:37.377 [INFO] polymarket::app::core: Loaded price history for token ID: 71904738656699421933730827487713504709985649928293793736161425136099824407722
-18:39:37.451 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 71904738656699421933730827487713504709985649928293793736161425136099824407722
-18:39:37.451 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
-18:39:37.451 [INFO] polymarket::app::websocket: WebSocket started for token: 71904738656699421933730827487713504709985649928293793736161425136099824407722
-18:39:37.453 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
-18:39:37.622 [DEBUG] tungstenite::handshake::client: Client handshake done.
-18:39:37.623 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
-18:39:37.649 [INFO] polymarket::websocket::clob: 📊 Book Update: 22 bids, 34 asks for asset 7190473865
-18:39:42.035 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.589 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
-18:39:42.589 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=13, market=4, token=0, token_id=78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.589 [INFO] polymarket: Loading orderbook for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.657 [INFO] polymarket::app::core: Loaded price history for token ID: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.729 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.729 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
-18:39:42.729 [INFO] polymarket::app::websocket: WebSocket started for token: 78581929489079888574806980525324762624150809428314449494774513985752699442665
-18:39:42.731 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
-18:39:42.890 [DEBUG] tungstenite::handshake::client: Client handshake done.
-18:39:42.890 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
-18:39:42.936 [INFO] polymarket::websocket::clob: 📊 Book Update: 1 bids, 18 asks for asset 7858192948
-22:42:34.023 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=1, market=1, token=0, token_id=65169719036027461615076939623072752036413957557228979466513748009268529163529
-22:42:35.421 [DEBUG] polymarket::app::navigation: Using event market logic for token ID retrieval
-22:42:35.421 [DEBUG] polymarket::app::navigation: Event market token retrieval: event=1, market=1, token=1, token_id=77500813573580231263178622118821514796289032802262823575735749669996931865796
-22:42:35.421 [INFO] polymarket: Loading orderbook for token ID: 77500813573580231263178622118821514796289032802262823575735749669996931865796
-22:42:35.421 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
-22:42:35.505 [INFO] polymarket::app::core: Loaded price history for token ID: 77500813573580231263178622118821514796289032802262823575735749669996931865796
-22:42:35.579 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 77500813573580231263178622118821514796289032802262823575735749669996931865796
-22:42:35.579 [INFO] polymarket::app::websocket: Closing existing WebSocket connection
-22:42:35.579 [INFO] polymarket::app::websocket: WebSocket started for token: 77500813573580231263178622118821514796289032802262823575735749669996931865796
-22:42:35.580 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
-22:42:35.722 [DEBUG] tungstenite::handshake::client: Client handshake done.
-22:42:35.723 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
-22:42:35.743 [INFO] polymarket::websocket::clob: 📊 Book Update: 7 bids, 9 asks for asset 7750081357
+22:05:14.152 [INFO] cli_log::init: Starting polymarket v0.1.0 with log level DEBUG
+22:05:14.153 [INFO] polymarket: Starting Polymarket Orderbook Viewer...
+22:05:14.230 [DEBUG] reqwest::connect: starting new connection: https://clob.polymarket.com/
+22:05:14.622 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 500)
+22:05:14.904 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 1000)
+22:05:15.272 [INFO] polymarket::app::core: Loading next batch of markets... (total so far: 1500)
+22:05:15.388 [INFO] polymarket::app::core: Reached end of markets pagination
+22:05:15.389 [DEBUG] reqwest::connect: starting new connection: https://gamma-api.polymarket.com/
+22:05:17.548 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 0
+22:05:20.110 [INFO] polymarket::app::core: Loaded 500 gamma events starting from index 500
+22:05:20.600 [INFO] polymarket::app::core: Loaded 186 gamma events starting from index 1000
+22:05:20.600 [INFO] polymarket::app::core: Reached end of gamma events pagination or max limit reached
+22:05:20.610 [INFO] polymarket::app::core: Successfully loaded 1506 markets total
+22:05:21.180 [DEBUG] polymarket::app::navigation: Using regular market logic for token ID retrieval
+22:05:21.180 [INFO] polymarket: Loading orderbook for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+22:05:21.232 [INFO] polymarket::app::core: Loaded price history for token ID: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+22:05:21.309 [INFO] polymarket::app::websocket: Starting WebSocket connection for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+22:05:21.310 [INFO] polymarket::app::websocket: WebSocket started for token: 51763106650496752541729852536693698972250609969744350680933901034551176542113
+22:05:21.313 [INFO] polymarket::websocket::clob: Connecting to WebSocket at: wss://ws-subscriptions-clob.polymarket.com/ws/market
+22:05:21.338 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.439 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.540 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.565 [DEBUG] tungstenite::handshake::client: Client handshake done.
+22:05:21.566 [INFO] polymarket::websocket::clob: ✅ Connected and subscribed to market channel
+22:05:21.594 [INFO] polymarket::websocket::clob: 📊 Book Update: 25 bids, 20 asks for asset 5176310665
+22:05:21.641 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.741 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.842 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:21.943 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.043 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.144 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.246 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.347 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.448 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.550 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.650 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.751 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.852 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:22.953 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.053 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.154 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.254 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.355 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.456 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.556 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.658 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.758 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.859 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:23.960 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.060 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.161 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.262 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.362 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.463 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.564 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.665 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.766 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.867 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:24.967 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.068 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.168 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.269 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.370 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.471 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.572 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.684 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.785 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.885 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:25.987 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.087 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.188 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.288 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.389 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.490 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.591 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.699 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.800 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:26.900 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.001 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.102 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.203 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.304 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.405 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.506 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.607 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.712 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.812 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:27.913 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.013 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.114 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.215 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.317 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.418 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.520 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.620 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.731 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.831 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:28.932 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.033 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.133 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.233 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.334 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.435 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.535 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.636 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.746 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.846 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:29.947 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.048 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.149 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.250 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.350 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.450 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.551 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.652 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.760 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.861 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:30.962 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.063 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.164 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.264 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.365 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.466 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.567 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.667 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.775 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.876 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:31.976 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.077 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.178 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.279 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.379 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.480 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.581 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.682 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.792 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.893 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:32.993 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.094 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.194 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.295 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.395 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.496 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.596 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.697 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.808 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:33.909 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.010 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.111 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.213 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.314 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.415 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.516 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.617 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.718 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.820 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:34.920 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.021 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.121 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.222 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.323 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.424 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.525 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.626 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.726 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.835 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:35.936 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.037 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.137 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.237 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.339 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.440 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.540 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.641 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.742 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.847 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:36.949 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.049 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.149 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.250 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.351 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.452 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.553 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.653 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.753 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.859 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:37.961 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.062 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.163 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.264 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.364 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.465 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.566 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.668 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.769 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.871 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:38.971 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.072 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.172 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.273 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.374 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.475 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.576 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.677 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.777 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.883 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:39.984 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.084 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.185 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.287 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.388 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.488 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.590 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.690 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.792 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.895 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:40.996 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.097 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.198 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.299 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.399 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.500 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.600 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.701 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.801 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:41.911 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.012 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.112 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.213 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.314 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.415 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.516 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.616 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.717 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.818 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:42.923 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.024 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.125 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.225 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.326 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.427 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.528 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.628 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.729 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.830 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:43.942 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.043 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.144 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.244 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.345 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.446 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.546 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.647 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.749 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.849 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:44.957 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.058 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.159 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.259 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.360 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.461 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.561 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.662 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.762 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.863 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:45.971 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.072 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.173 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.274 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.374 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.476 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.576 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.677 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.778 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.878 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:46.983 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.084 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.185 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.285 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.386 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.487 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.587 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.687 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.788 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.888 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:47.997 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.098 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.199 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.300 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.401 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.502 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.603 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.703 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.804 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:48.905 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.010 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.111 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.212 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.313 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.413 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.514 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.615 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.716 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.817 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:49.917 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.023 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.124 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.225 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.326 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.427 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.527 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.628 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.729 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.830 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:50.931 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.045 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.146 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.247 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.348 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.448 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.549 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.649 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.750 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.851 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:51.951 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.058 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.159 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.259 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.360 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.461 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.562 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.663 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.764 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.864 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:52.965 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.069 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.170 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.272 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.373 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.473 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.574 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.675 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.775 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.876 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:53.977 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.082 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.182 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.283 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.383 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.484 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.585 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.686 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.786 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.887 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:54.987 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.097 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.197 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.297 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.399 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.500 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.600 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.701 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.801 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:55.902 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.003 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.111 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.212 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.313 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.413 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.513 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.615 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.715 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.815 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:56.916 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.016 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.123 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.224 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.325 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.425 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.526 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.627 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.728 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.828 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:57.929 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.030 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.134 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.235 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.337 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.438 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.539 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.640 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.741 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.842 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:58.943 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.043 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.149 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.250 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.351 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.452 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.552 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.653 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.754 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.854 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:05:59.955 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.056 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.165 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.267 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.367 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.468 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.569 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.670 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.771 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.872 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:00.972 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.073 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.179 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.280 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.380 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.481 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.582 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.684 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.784 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.885 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:01.986 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.086 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.198 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.298 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.399 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.501 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.601 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.702 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.803 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:02.903 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.004 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.104 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.212 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.312 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.413 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.515 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.615 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.716 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.816 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:03.918 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.019 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.119 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.224 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.325 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.425 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.526 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.628 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.730 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.831 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:04.932 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.034 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.135 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.236 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.336 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.437 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.537 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.638 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.740 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.841 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:05.941 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.042 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.143 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.248 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.349 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.450 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.551 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.652 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.753 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.854 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:06.955 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:07.056 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:07.157 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:07.263 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:07.363 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets
+22:06:07.464 [INFO] polymarket::app::price_history: No relevant crypto symbols found, stopping all crypto WebSockets

@@ -191,21 +191,17 @@ impl PriceHistory {
 }
 
 #[derive(Debug, Clone)]
-pub struct BitcoinPrice {
+pub struct CryptoPrice {
+    pub symbol: String,
     pub price: f64,
     pub timestamp: DateTime<Utc>,
     pub history: PriceHistory,
 }
 
-impl Default for BitcoinPrice {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl BitcoinPrice {
-    pub fn new() -> Self {
+impl CryptoPrice {
+    pub fn new(symbol: String) -> Self {
         Self {
+            symbol,
             price: 0.0,
             timestamp: Utc::now(),
             history: PriceHistory::new(300), // Store last 300 points
@@ -218,3 +214,6 @@ impl BitcoinPrice {
         self.history.add_price(new_price);
     }
 }
+
+// Backward compatibility alias
+pub type BitcoinPrice = CryptoPrice;

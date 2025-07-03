@@ -1,5 +1,5 @@
 pub mod clob;
-pub mod bitcoin;
+pub mod crypto;
 
 // Re-export commonly used types
 pub use clob::{
@@ -11,4 +11,4 @@ pub use clob::{
     StructuredMessageCallback,
 };
 
-pub use bitcoin::BitcoinWebSocket;
+pub use crypto::{CryptoWebSocket, CryptoSymbol};

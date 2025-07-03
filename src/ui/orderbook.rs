@@ -1,14 +1,18 @@
+#![allow(unused_imports)]
+
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     widgets::{Block, Borders, Cell, Paragraph, Row, Table},
     Frame,
 };
-use cli_log::info;
+
+use cli_log::*;
 
 use crate::app::App;
 use crate::data::{MarketStats, OrderBookData, SimpleOrder, OrderChangeDirection};
-use super::{charts::{render_orderbook_plot, render_price_history_chart, render_bitcoin_chart_with_data}, components::render_combined_market_header};
+use super::{charts::{render_orderbook_plot, render_price_history_chart, render_crypto_chart_with_data}, components::render_combined_market_header};
+use crate::websocket::CryptoSymbol;
 
 pub fn render_orderbook(f: &mut Frame, app: &mut App, area: Rect) {
     if let Some(ref mut orderbook) = app.orderbook {
@@ -49,62 +53,68 @@ pub fn render_orderbook(f: &mut Frame, app: &mut App, area: Rect) {
         render_order_side(f, &orderbook.asks, "Asks (SELL Orders)", Color::Red, table_chunks[1], orderbook.tick_size);
 
         // Charts (right side) - split vertically
-        // Check for Bitcoin chart before borrowing orderbook
+        // Check for crypto charts before borrowing orderbook
         let market_question = orderbook.market_question.clone();
-        let should_show_bitcoin = market_question.to_lowercase().contains("bitcoin") || 
-                                  market_question.to_lowercase().contains("btc");
+        let question_lower = market_question.to_lowercase();
         
-        let chart_chunks = if should_show_bitcoin {
-            // Three charts: Bitcoin, Price history, Depth chart
+        let mut relevant_cryptos = Vec::new();
+        if question_lower.contains("bitcoin") || market_question.contains("BTC") {
+            relevant_cryptos.push(CryptoSymbol::Bitcoin);
+        }
+        if question_lower.contains("ethereum") || market_question.contains("ETH") {
+            relevant_cryptos.push(CryptoSymbol::Ethereum);
+        }
+        if question_lower.contains("solana") || market_question.contains("SOL") {
+            relevant_cryptos.push(CryptoSymbol::Solana);
+        }
+        
+        let crypto_count = relevant_cryptos.len();
+        
+        let chart_chunks = if crypto_count > 0 {
+            // Multiple charts: Crypto charts + Price history + Depth chart
+            let mut constraints = Vec::new();
+            
+            // Each crypto chart gets equal space at the top
+            for _ in 0..crypto_count {
+                constraints.push(Constraint::Percentage(20));
+            }
+            
+            // Price history and orderbook split the remaining space
+            let remaining = 100 - (crypto_count * 20) as u16;
+            constraints.push(Constraint::Percentage(remaining / 2)); // Price history
+            constraints.push(Constraint::Percentage(remaining / 2)); // Orderbook depth
+            
             Layout::default()
                 .direction(Direction::Vertical)
-                .constraints([
-                    Constraint::Percentage(25), // Bitcoin chart
-                    Constraint::Percentage(35), // Price history chart  
-                    Constraint::Percentage(40), // Orderbook depth chart
-                ])
+                .constraints(constraints)
                 .split(main_chunks[1])
         } else {
             // Two charts: Price history, Depth chart
             Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
-                    Constraint::Percentage(40), // Price history chart
-                    Constraint::Percentage(60), // Orderbook depth chart
+                    Constraint::Percentage(50), // Price history chart
+                    Constraint::Percentage(50), // Orderbook depth chart
                 ])
                 .split(main_chunks[1])
         };
 
-        if should_show_bitcoin {
-            // Clone Bitcoin price data to avoid borrow checker issues
-            let bitcoin_price_data = if let Some(ref btc_arc) = app.bitcoin_price {
-                match btc_arc.lock() {
-                    Ok(btc_data) => {
-                        // Debug log occasionally
-                        if !btc_data.history.points.is_empty() && btc_data.history.points.len() % 50 == 0 {
-                            info!("UI: Bitcoin price data available with {} points, current: ${:.2}", 
-                                  btc_data.history.points.len(), btc_data.price);
-                        }
-                        Some(btc_data.clone())
-                    }
-                    Err(_) => None
-                }
-            } else {
-                None
-            };
+        // Render crypto charts
+        for (i, crypto_symbol) in relevant_cryptos.iter().enumerate() {
+            let crypto_price_data = app.crypto_prices.get(crypto_symbol)
+                .and_then(|arc| arc.lock().ok())
+                .map(|data| data.clone());
             
-            // Bitcoin chart (top)
-            render_bitcoin_chart_with_data(f, bitcoin_price_data, chart_chunks[0]);
-            // Price history chart (middle)
-            render_price_history_chart(f, orderbook, chart_chunks[1]);
-            // Orderbook depth chart (bottom)
-            render_orderbook_plot(f, orderbook, chart_chunks[2]);
-        } else {
-            // Price history chart (top)
-            render_price_history_chart(f, orderbook, chart_chunks[0]);
-            // Orderbook depth chart (bottom)
-            render_orderbook_plot(f, orderbook, chart_chunks[1]);
+            render_crypto_chart_with_data(f, crypto_price_data, crypto_symbol, chart_chunks[i]);
         }
+        
+        let price_history_idx = crypto_count;
+        let orderbook_idx = crypto_count + 1;
+        
+        // Price history chart
+        render_price_history_chart(f, orderbook, chart_chunks[price_history_idx]);
+        // Orderbook depth chart
+        render_orderbook_plot(f, orderbook, chart_chunks[orderbook_idx]);
     } else {
         let placeholder = Paragraph::new("Loading orderbook...")
             .style(Style::default().fg(Color::Yellow))

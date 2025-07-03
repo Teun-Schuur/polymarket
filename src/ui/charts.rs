@@ -171,9 +171,9 @@ pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area:
                 .style(Style::default().fg(Color::Gray))
                 .bounds([min_price_display, max_price_display])
                 .labels(vec![
-                    Span::from(format!("{:.decimal_places$}", min_price_display, decimal_places = decimal_places)),
+                    Span::from(format!("{min_price_display:.decimal_places$}")),
                     Span::from(format!("{:.decimal_places$}", (min_price_display + max_price_display) / 2.0, decimal_places = decimal_places)),
-                    Span::from(format!("{:.decimal_places$}", max_price_display, decimal_places = decimal_places)),
+                    Span::from(format!("{max_price_display:.decimal_places$}")),
                 ]),
         )
         .y_axis(
@@ -184,7 +184,7 @@ pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area:
                 .labels(vec![
                     Span::from("0"),
                     Span::from(format!("{:.0}", max_depth / 2.0)),
-                    Span::from(format!("{:.0}", max_depth)),
+                    Span::from(format!("{max_depth:.0}")),
                 ]),
         );
     f.render_widget(chart, area);
@@ -234,49 +234,64 @@ pub fn render_price_history_chart(f: &mut Frame, orderbook: &OrderBookData, area
                 .style(Style::default().fg(Color::Gray))
                 .bounds([min_price, max_price])
                 .labels(vec![
-                    Span::from(format!("{:.4}", min_price)),
+                    Span::from(format!("{min_price:.4}")),
                     Span::from(format!("{:.4}", (min_price + max_price) / 2.0)),
-                    Span::from(format!("{:.4}", max_price)),
+                    Span::from(format!("{max_price:.4}")),
                 ]),
         );
     f.render_widget(chart, area);
 }
 
-pub fn render_bitcoin_chart_with_data(f: &mut Frame, bitcoin_price_data: Option<crate::data::BitcoinPrice>, area: Rect) {
-    if bitcoin_price_data.is_none() {
-        let block = Block::default().borders(Borders::ALL).title("Bitcoin Price - Connecting...");
+pub fn render_crypto_chart_with_data(
+    f: &mut Frame, 
+    crypto_data: Option<crate::data::CryptoPrice>, 
+    symbol: &crate::websocket::CryptoSymbol,
+    area: Rect
+) {
+    let (name, color, symbol_str) = match symbol {
+        crate::websocket::CryptoSymbol::Bitcoin => ("Bitcoin", Color::Rgb(255, 165, 0), "BTC"), // Orange
+        crate::websocket::CryptoSymbol::Ethereum => ("Ethereum", Color::Rgb(98, 126, 234), "ETH"), // Blue
+        crate::websocket::CryptoSymbol::Solana => ("Solana", Color::Rgb(138, 255, 255), "SOL"), // Cyan
+    };
+    
+    if crypto_data.is_none() {
+        let block = Block::default().borders(Borders::ALL).title(format!("{name} Price - Connecting..."));
         f.render_widget(block, area);
-        let placeholder = Paragraph::new("Connecting to Bitcoin price feed...").style(Style::default().fg(Color::Yellow)).alignment(Alignment::Center);
+        let placeholder = Paragraph::new(format!("Connecting to {name} price feed..."))
+            .style(Style::default().fg(Color::Yellow))
+            .alignment(Alignment::Center);
         f.render_widget(placeholder, area);
         return;
     }
 
-    let btc_data = bitcoin_price_data.as_ref().unwrap();
-    let price_points: Vec<(f64, f64)> = btc_data.history.points.iter()
+    let crypto = crypto_data.as_ref().unwrap();
+    let price_points: Vec<(f64, f64)> = crypto.history.points.iter()
         .map(|p| (p.timestamp.timestamp() as f64, p.price))
         .collect();
 
     if price_points.len() < 2 {
-        let no_data = Paragraph::new("Collecting Bitcoin price data...").style(Style::default().fg(Color::Gray)).alignment(Alignment::Center);
-        f.render_widget(Block::default().title("Bitcoin Price").borders(Borders::ALL), area);
+        let no_data = Paragraph::new(format!("Collecting {name} price data..."))
+            .style(Style::default().fg(Color::Gray))
+            .alignment(Alignment::Center);
+        f.render_widget(Block::default().title(format!("{name} Price")).borders(Borders::ALL), area);
         f.render_widget(no_data, area);
         return;
     }
 
-    let (min_time, max_time) = btc_data.history.get_time_range().unwrap();
-    let (min_price, max_price) = btc_data.history.get_price_range().unwrap();
+    let (min_time, max_time) = crypto.history.get_time_range().unwrap();
+    let (min_price, max_price) = crypto.history.get_price_range().unwrap();
 
     let datasets = vec![Dataset::default()
-        .name("BTC Price")
+        .name(format!("{symbol_str} Price"))
         .marker(symbols::Marker::Dot)
-        .style(Style::default().fg(Color::Rgb(255, 165, 0))) // Bitcoin orange
+        .style(Style::default().fg(color))
         .graph_type(GraphType::Line)
         .data(&price_points)];
 
     let chart = Chart::new(datasets)
         .block(
             Block::default()
-                .title(format!("Bitcoin Price - Current: ${:.2}", btc_data.price))
+                .title(format!("{} Price - Current: ${:.2}", name, crypto.price))
                 .borders(Borders::ALL),
         )
         .x_axis(
@@ -295,12 +310,17 @@ pub fn render_bitcoin_chart_with_data(f: &mut Frame, bitcoin_price_data: Option<
                 .style(Style::default().fg(Color::Gray))
                 .bounds([min_price, max_price])
                 .labels(vec![
-                    Span::from(format!("${:.2}", min_price)),
+                    Span::from(format!("${min_price:.2}")),
                     Span::from(format!("${:.2}", (min_price + max_price) / 2.0)),
-                    Span::from(format!("${:.2}", max_price)),
+                    Span::from(format!("${max_price:.2}")),
                 ]),
         );
     f.render_widget(chart, area);
+}
+
+// Backward compatibility
+pub fn render_bitcoin_chart_with_data(f: &mut Frame, bitcoin_price_data: Option<crate::data::BitcoinPrice>, area: Rect) {
+    render_crypto_chart_with_data(f, bitcoin_price_data, &crate::websocket::CryptoSymbol::Bitcoin, area);
 }
 
 pub fn render_market_price_history(f: &mut Frame, app: &App, area: Rect) {
@@ -318,91 +338,78 @@ pub fn render_market_price_history(f: &mut Frame, app: &App, area: Rect) {
         }
         
         if chart_data.is_empty() {
-            let message = Paragraph::new("No price history data available")
+            let no_data = Paragraph::new("No price history data available")
                 .style(Style::default().fg(Color::Gray))
-                .alignment(Alignment::Center)
-                .block(Block::default()
-                    .borders(Borders::ALL)
-                    .title(format!("Price History - {}", market_name)));
-            f.render_widget(message, area);
+                .alignment(Alignment::Center);
+            f.render_widget(Block::default().title("Market Price History").borders(Borders::ALL), area);
+            f.render_widget(no_data, area);
             return;
         }
+
+        // Calculate price range
+        let prices: Vec<f64> = chart_data.iter().map(|(_, price)| *price).collect();
+        let min_price = prices.iter().fold(f64::INFINITY, |a, &b| a.min(b));
+        let max_price = prices.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
         
-        // Get tick size from orderbook, default to 0.001 if not available
-        let tick_size = app.orderbook.as_ref().map(|ob| ob.tick_size).unwrap_or(0.001);
+        // Calculate time range and convert to dates
+        let times: Vec<f64> = chart_data.iter().map(|(time, _)| *time).collect();
+        let min_time = times.iter().fold(f64::INFINITY, |a, &b| a.min(b));
+        let max_time = times.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
         
-        // Calculate decimal places based on tick size
-        let decimal_places = if tick_size >= 1.0 {
-            0
-        } else {
-            (-tick_size.log10().floor() as usize).min(6)
-        };
-        
-        let y_min = 0.0;
-        let y_max = 1.0;
-        
-        // Generate more y-axis labels rounded to tick size
-        let num_ticks = 6; // Number of tick marks
-        let mut y_labels = Vec::new();
-        for i in 0..num_ticks {
-            let value = y_min + (y_max - y_min) * (i as f64) / (num_ticks - 1) as f64;
-            // Round to nearest tick size
-            let rounded_value = (value / tick_size).round() * tick_size;
-            y_labels.push(Span::styled(
-                format!("{:.decimal_places$}", rounded_value, decimal_places = decimal_places),
-                Style::default().fg(Color::Gray)
-            ));
+        // Convert timestamps to DateTime for formatting
+        // let min_date = chrono::DateTime::from_timestamp(min_time as i64, 0).unwrap_or_default();
+        // let max_date = chrono::DateTime::from_timestamp(max_time as i64, 0).unwrap_or_default();
+        const NUM_DATES: u32 = 5;
+        let mut dates: Vec<Span> = vec![];
+        for i in 0..NUM_DATES {
+            let fraction = i as f64 / (NUM_DATES - 1) as f64;
+            let timestamp = min_time + fraction * (max_time - min_time);
+            if let Some(date) = chrono::DateTime::from_timestamp(timestamp as i64, 0) {
+                let formatted_date = date.format("%d/%m %H:%M").to_string();
+                dates.push(Span::from(formatted_date));
+            } else {
+                warn!("Invalid timestamp: {timestamp}");
+            }
         }
 
-        // Get time range for x-axis
-        let x_min = chart_data.first().map(|(t, _)| *t).unwrap_or(0.0);
-        let x_max = chart_data.last().map(|(t, _)| *t).unwrap_or(1.0);
-        
-        // Create time labels from Unix timestamps with intelligent formatting
-        let _time_span_seconds = x_max - x_min;
-        let start_time = chrono::DateTime::from_timestamp(x_min as i64, 0)
-            .unwrap_or_else(|| chrono::Utc::now());
-        let end_time = chrono::DateTime::from_timestamp(x_max as i64, 0)
-            .unwrap_or_else(|| chrono::Utc::now());
 
         let datasets = vec![Dataset::default()
-            .name("Price")
+            .name("Market Price")
             .marker(symbols::Marker::Dot)
-            .style(Style::default().fg(Color::Cyan))
+            .style(Style::default().fg(Color::Green))
             .graph_type(GraphType::Line)
             .data(&chart_data)];
 
         let chart = Chart::new(datasets)
             .block(
                 Block::default()
-                    .title(format!("Price History - {}", market_name))
+                    .title(format!("Market Price History - {market_name}"))
                     .borders(Borders::ALL),
             )
             .x_axis(
                 Axis::default()
                     .title("Time")
                     .style(Style::default().fg(Color::Gray))
-                    .bounds([x_min, x_max])
-                    .labels(vec![
-                        Span::from(start_time.format("%m/%d %H:%M").to_string()),
-                        Span::from(end_time.format("%m/%d %H:%M").to_string()),
-                    ]),
+                    .bounds([min_time, max_time])
+                    .labels(dates.clone())
             )
             .y_axis(
                 Axis::default()
                     .title("Price")
                     .style(Style::default().fg(Color::Gray))
-                    .bounds([y_min, y_max])
-                    .labels(y_labels),
+                    .bounds([min_price, max_price])
+                    .labels(vec![
+                        Span::from(format!("{min_price:.3}")),
+                        Span::from(format!("{:.3}", (min_price + max_price) / 2.0)),
+                        Span::from(format!("{max_price:.3}")),
+                    ]),
             );
         f.render_widget(chart, area);
     } else {
-        let message = Paragraph::new("Loading price history...")
+        let no_data = Paragraph::new("Loading market price history...")
             .style(Style::default().fg(Color::Yellow))
-            .alignment(Alignment::Center)
-            .block(Block::default()
-                .borders(Borders::ALL)
-                .title("Price History"));
-        f.render_widget(message, area);
+            .alignment(Alignment::Center);
+        f.render_widget(Block::default().title("Market Price History").borders(Borders::ALL), area);
+        f.render_widget(no_data, area);
     }
 }

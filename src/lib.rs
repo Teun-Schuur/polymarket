@@ -10,5 +10,5 @@ pub use app::{App, MarketSelectorTab};
 pub use cli::Cli;
 pub use data::{MarketInfo, MarketStats, OrderBookData, SimpleOrder, TokenInfo, BitcoinPrice};
 pub use ui::render_ui;
-pub use websocket::{PolymarketWebSocket, PolymarketWebSocketMessage, StructuredMessageCallback, BitcoinWebSocket};
+pub use websocket::{PolymarketWebSocket, PolymarketWebSocketMessage, StructuredMessageCallback};
 

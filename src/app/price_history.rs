@@ -1,12 +1,14 @@
-//! Price history and Bitcoin price tracking
+//! Price history and cryptocurrency price tracking
 
 use std::{
+    // collections::HashMap,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 use cli_log::*;
 
-use crate::data::SimpleOrder;
+use crate::data::{SimpleOrder, CryptoPrice};
+use crate::websocket::{CryptoWebSocket, CryptoSymbol};
 use super::core::App;
 
 pub fn update_price_history_if_needed(app: &mut App) {
@@ -49,69 +51,113 @@ pub fn calculate_weighted_midpoint(bids: &[SimpleOrder], asks: &[SimpleOrder]) -
     best_bid * ask_weight + best_ask * bid_weight
 }
 
-pub fn update_bitcoin_price_if_needed(app: &mut App) {
-    // This will be called periodically to check if we need to start/stop Bitcoin tracking
-    start_bitcoin_websocket_if_needed(app);
+pub fn update_crypto_prices_if_needed(app: &mut App) {
+    // This will be called periodically to check if we need to start/stop crypto tracking
+    start_crypto_websockets_if_needed(app);
 }
 
-fn should_show_bitcoin_chart(app: &App) -> bool {
+fn get_relevant_crypto_symbols(app: &App) -> Option<Vec<CryptoSymbol>> {
+    let mut symbols = Vec::new();
+    
+    // Only track crypto if we have an active orderbook
     if let Some(ref orderbook) = app.orderbook {
-        orderbook.market_question.to_lowercase().contains("bitcoin") || 
-        orderbook.market_question.to_lowercase().contains("btc")
+        let question_lower = orderbook.market_question.to_lowercase();
+        
+        // Only add ONE crypto symbol per market to avoid unnecessary subscriptions
+        // Priority: Bitcoin > Ethereum > Solana (most commonly referenced)
+        if question_lower.contains("bitcoin") || question_lower.contains("btc") {
+            symbols.push(CryptoSymbol::Bitcoin);
+        } else if question_lower.contains("ethereum") || question_lower.contains("eth") {
+            symbols.push(CryptoSymbol::Ethereum);
+        } else if question_lower.contains("solana") || question_lower.contains("sol") {
+            symbols.push(CryptoSymbol::Solana);
+        } else{
+            return None;
+        }        
+        info!("Crypto tracking for market '{}': {:?}", orderbook.market_question, symbols);
     } else {
-        false
+        // No orderbook selected, don't track any crypto
+        // debug!("No orderbook selected, stopping all crypto tracking");
+    }
+    
+    Some(symbols)
+}
+
+fn start_crypto_websockets_if_needed(app: &mut App) {
+    // Get the currently relevant crypto symbols based on the active orderbook
+    let relevant_symbols = match get_relevant_crypto_symbols(app) {
+        Some(symbols) => symbols,
+        None => {
+            // No relevant crypto symbols, stop all WebSockets
+            info!("No relevant crypto symbols found, stopping all crypto WebSockets");
+            app.crypto_websocket_active.clear();
+            app.crypto_prices.clear();
+            // Backward compatibility for Bitcoin
+            app.bitcoin_price = None;
+            return;
+        }
+    };
+    
+    // Stop all currently active crypto WebSockets that are no longer relevant
+    let active_symbols: Vec<_> = app.crypto_websocket_active.keys().cloned().collect();
+    for active_symbol in active_symbols {
+        if !relevant_symbols.contains(&active_symbol) {
+            info!("Stopping {} WebSocket - no longer relevant for current market", active_symbol.name());
+            app.crypto_websocket_active.remove(&active_symbol);
+            app.crypto_prices.remove(&active_symbol);
+            
+            // Backward compatibility for Bitcoin
+            if matches!(active_symbol, CryptoSymbol::Bitcoin) {
+                app.bitcoin_price = None;
+            }
+        }
+    }
+    
+    // Start WebSockets for newly relevant symbols
+    for symbol in relevant_symbols {
+        if !app.crypto_websocket_active.get(&symbol).unwrap_or(&false) {
+            info!("Starting {} WebSocket for market tracking", symbol.name());
+            
+            // Initialize crypto price tracking
+            let crypto_price = Arc::new(Mutex::new(CryptoPrice::new(symbol.symbol().to_string())));
+            app.crypto_prices.insert(symbol.clone(), crypto_price.clone());
+            
+            // Start the WebSocket in a separate thread
+            start_crypto_websocket(symbol.clone(), crypto_price.clone());
+            app.crypto_websocket_active.insert(symbol.clone(), true);
+            
+            // Backward compatibility for Bitcoin
+            if matches!(symbol, CryptoSymbol::Bitcoin) {
+                app.bitcoin_price = Some(crypto_price);
+            }
+        }
     }
 }
 
-fn start_bitcoin_websocket_if_needed(app: &mut App) {
-    if should_show_bitcoin_chart(app) && !app.bitcoin_websocket_active {
-        info!("Starting Bitcoin WebSocket - market contains 'Bitcoin'");
-        
-        // Initialize Bitcoin price tracking with Arc<Mutex<>>
-        app.bitcoin_price = Some(Arc::new(Mutex::new(crate::data::BitcoinPrice::new())));
-        
-        // Start the WebSocket in a separate thread
-        start_bitcoin_websocket(app);
-        app.bitcoin_websocket_active = true;
-    } else if !should_show_bitcoin_chart(app) && app.bitcoin_websocket_active {
-        info!("Stopping Bitcoin WebSocket - market no longer contains 'Bitcoin'");
-        stop_bitcoin_websocket(app);
-    }
-}
-
-fn start_bitcoin_websocket(app: &mut App) {
-    use crate::websocket::BitcoinWebSocket;
+fn start_crypto_websocket(symbol: CryptoSymbol, price_arc: Arc<Mutex<CryptoPrice>>) {
     use std::thread;
     
-    if let Some(ref bitcoin_price_arc) = app.bitcoin_price {
-        let bitcoin_price = Arc::clone(bitcoin_price_arc);
+    thread::spawn(move || {
+        let mut crypto_ws = CryptoWebSocket::new();
+        crypto_ws.start_single(symbol.clone());  // Use start_single for individual symbol
         
-        thread::spawn(move || {
-            let mut btc_ws = BitcoinWebSocket::new();
-            btc_ws.start();
-            
-            info!("Bitcoin WebSocket started");
-            
-            let mut last_price = 0.0;
-            while btc_ws.is_running() {
-                let current_price = btc_ws.get_price();
-                if current_price > 0.0 && (current_price - last_price).abs() > 0.01 {
-                    if let Ok(mut price_data) = bitcoin_price.lock() {
-                        price_data.update_price(current_price);
-                        last_price = current_price;
-                    }
+        info!("{} WebSocket started", symbol.name());
+        
+        let mut last_price = 0.0;
+        while crypto_ws.is_running() {
+            let current_price = crypto_ws.get_price(&symbol);
+            if current_price > 0.0 && (current_price - last_price).abs() > 0.01 {
+                if let Ok(mut price_data) = price_arc.lock() {
+                    price_data.update_price(current_price);
+                    last_price = current_price;
+                    debug!("{} price updated: ${:.2}", symbol.name(), current_price);
                 }
-                thread::sleep(Duration::from_millis(100));
             }
-            
-            info!("Bitcoin WebSocket ended");
-        });
-    }
-}
-
-fn stop_bitcoin_websocket(app: &mut App) {
-    app.bitcoin_websocket_active = false;
-    app.bitcoin_price = None;
+            thread::sleep(Duration::from_millis(100));
+        }
+        
+        info!("{} WebSocket ended", symbol.name());
+    });
 }
 
 impl App {
@@ -124,15 +170,17 @@ impl App {
     }
     
     pub fn should_show_bitcoin_chart(&self) -> bool {
-        should_show_bitcoin_chart(self)
+        get_relevant_crypto_symbols(self)
+            .map(|symbols| symbols.contains(&CryptoSymbol::Bitcoin))
+            .unwrap_or(false)
     }
     
     pub fn start_bitcoin_websocket_if_needed(&mut self) {
-        start_bitcoin_websocket_if_needed(self);
+        start_crypto_websockets_if_needed(self);
     }
     
     pub fn update_bitcoin_price_if_needed(&mut self) {
-        update_bitcoin_price_if_needed(self);
+        update_crypto_prices_if_needed(self);
     }
     
     pub fn calculate_weighted_midpoint(bids: &[SimpleOrder], asks: &[SimpleOrder]) -> f64 {

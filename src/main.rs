@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
     execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture).ok();
 
     if let Err(panic) = result {
-        eprintln!("\n\nApplication panicked: {:?}\n\n", panic);
+        eprintln!("\n\nApplication panicked: {panic:?}\n\n");
         return Err(anyhow::anyhow!("Application panicked"));
     }
 
@@ -83,7 +83,7 @@ async fn run_tui_app(cli: Cli) -> Result<()> {
     terminal.show_cursor()?;
 
     if let Err(err) = &res {
-        info!("App error: {:?}", err);
+        info!("App error: {err:?}");
     }
 
     res

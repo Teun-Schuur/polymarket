@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -19,7 +19,6 @@ use clap::Parser;
 
 // Import from our local library modules
 use polymarket::{App, Cli, render_ui};
-use polymarket::app::MarketSelectorTab;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -94,185 +93,19 @@ async fn run_app<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
 ) -> Result<()> {
-    let tick_rate = Duration::from_millis(1); // Extremely fast polling for instant response
+    let tick_rate = Duration::from_millis(polymarket::config::TICK_RATE_MS);
     let mut last_data_update = Instant::now();
-    let data_update_rate = Duration::from_millis(100); // Update data 5 times per second
+    let data_update_rate = Duration::from_millis(polymarket::config::DATA_UPDATE_RATE_MS);
     let mut last_ui_update = Instant::now();
-    let ui_update_rate = Duration::from_millis(1000); // Force UI update at least once per second for fading
+    let ui_update_rate = Duration::from_millis(polymarket::config::UI_UPDATE_RATE_MS);
 
     loop {
         let timeout = tick_rate;
 
         if crossterm::event::poll(timeout)? {
             if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => {
-                        if app.search_mode {
-                            app.add_search_char('q');
-                        } else {
-                            return Ok(());
-                        }
-                    }
-                    KeyCode::Char('m') => {
-                        if app.search_mode {
-                            app.add_search_char('m');
-                        } else {
-                            app.show_market_selector = true;
-                            app.show_token_selector = false;
-                            app.search_mode = false;
-                            app.needs_redraw = true;
-                        }
-                    }
-                    KeyCode::Char('r') => {
-                        if app.search_mode {
-                            app.add_search_char('r');
-                        } else if let Some(ref orderbook) = app.orderbook {
-                            let token_id = orderbook.token_id.clone();
-                            app.load_orderbook(&token_id).await?;
-                            app.needs_redraw = true;
-                        }
-                    }
-                    KeyCode::Left | KeyCode::Char('h') => {
-                        if app.search_mode {
-                            if matches!(key.code, KeyCode::Char('h')) {
-                                app.add_search_char('h');
-                            }
-                        } else if app.show_market_selector {
-                            // Switch between market selector tabs
-                            app.previous_market_selector_tab();
-                        } else if !app.show_market_selector && !app.show_event_market_selector && !app.show_token_selector {
-                            // Only navigate tabs when viewing orderbook
-                            app.previous_tab();
-                        }
-                    }
-                    KeyCode::Right | KeyCode::Char('l') => {
-                        if app.search_mode {
-                            if matches!(key.code, KeyCode::Char('l')) {
-                                app.add_search_char('l');
-                            }
-                        } else if app.show_market_selector {
-                            // Switch between market selector tabs
-                            app.next_market_selector_tab();
-                        } else if !app.show_market_selector && !app.show_event_market_selector && !app.show_token_selector {
-                            // Only navigate tabs when viewing orderbook
-                            app.next_tab();
-                        }
-                    }
-                    KeyCode::Char('/') => {
-                        if app.search_mode {
-                            app.add_search_char('/');
-                        } else if app.show_market_selector {
-                            app.toggle_search_mode();
-                        }
-                    }
-                    KeyCode::Esc => {
-                        if app.search_mode {
-                            app.toggle_search_mode();
-                        }
-                    }
-                    KeyCode::Up => {
-                        if app.show_market_selector {
-                            match app.market_selector_tab {
-                                MarketSelectorTab::AllMarkets => app.previous_market(),
-                                MarketSelectorTab::Events => app.previous_event(),
-                            }
-                        } else if app.show_event_market_selector {
-                            app.previous_event_market();
-                        } else if app.show_token_selector {
-                            if app.market_selector_tab == MarketSelectorTab::Events {
-                                app.previous_event_token();
-                            } else {
-                                app.previous_token();
-                            }
-                        }
-                    }
-                    KeyCode::Down => {
-                        if app.show_market_selector {
-                            match app.market_selector_tab {
-                                MarketSelectorTab::AllMarkets => app.next_market(),
-                                MarketSelectorTab::Events => app.next_event(),
-                            }
-                        } else if app.show_event_market_selector {
-                            app.next_event_market();
-                        } else if app.show_token_selector {
-                            if app.market_selector_tab == MarketSelectorTab::Events {
-                                app.next_event_token();
-                            } else {
-                                app.next_token();
-                            }
-                        }
-                    }
-                    KeyCode::PageUp => {
-                        if app.show_market_selector {
-                            match app.market_selector_tab {
-                                MarketSelectorTab::AllMarkets => app.page_up_markets(),
-                                MarketSelectorTab::Events => app.page_up_events(),
-                            }
-                        } else if app.show_token_selector {
-                            app.page_up_tokens();
-                        }
-                    }
-                    KeyCode::PageDown => {
-                        if app.show_market_selector {
-                            match app.market_selector_tab {
-                                MarketSelectorTab::AllMarkets => app.page_down_markets(),
-                                MarketSelectorTab::Events => app.page_down_events(),
-                            }
-                        } else if app.show_token_selector {
-                            app.page_down_tokens();
-                        }
-                    }
-                    KeyCode::Enter => {
-                        if app.show_market_selector {
-                            match app.market_selector_tab {
-                                MarketSelectorTab::AllMarkets => app.select_market(),
-                                MarketSelectorTab::Events => app.select_event(),
-                            }
-                        } else if app.show_event_market_selector {
-                            app.select_event_market();
-                        } else if app.show_token_selector {
-                            if app.market_selector_tab == MarketSelectorTab::Events {
-                                app.select_token(); // This will work for event tokens too
-                            } else {
-                                app.select_token();
-                            }
-                            if let Some(token_id) = app.get_current_token_id() {
-                                info!("Loading orderbook for token ID: {token_id}");
-                                // Load initial orderbook data via API
-                                app.load_orderbook(&token_id).await?;
-                                // Start WebSocket for real-time updates
-                                app.start_websocket_for_token(&token_id);
-                                app.needs_redraw = true;
-                            }
-                        }
-                    }
-                    KeyCode::Backspace => {
-                        if app.show_token_selector {
-                            if app.market_selector_tab == MarketSelectorTab::Events {
-                                // Go back to event market selector
-                                app.show_event_market_selector = true;
-                                app.show_token_selector = false;
-                            } else {
-                                // Go back to main market selector
-                                app.show_market_selector = true;
-                                app.show_token_selector = false;
-                            }
-                            app.needs_redraw = true;
-                        } else if app.show_event_market_selector {
-                            // Go back to main market selector (events tab)
-                            app.show_market_selector = true;
-                            app.show_event_market_selector = false;
-                            app.needs_redraw = true;
-                        } else if app.search_mode {
-                            app.remove_search_char();
-                        }
-                    }
-                    KeyCode::Char(ch) => {
-                        if app.search_mode && !matches!(ch, 'q' | 'm' | 'r' | '/') {
-                            app.add_search_char(ch);
-                        }
-                    }
-                    _ => {}
+                if !app.handle_key_input(key.code).await? {
+                    return Ok(()); // Exit requested
                 }
             }
         }

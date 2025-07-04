@@ -79,7 +79,7 @@ pub enum PolymarketWebSocketMessage {
 }
 
 // Callback type for handling structured messages
-pub type StructuredMessageCallback = Box<dyn Fn(PolymarketWebSocketMessage) + Send>;
+pub type MessageCallback = Box<dyn Fn(PolymarketWebSocketMessage) + Send>;
 
 pub struct PolymarketWebSocket {
     sender: Sender<Message>,
@@ -91,12 +91,11 @@ impl PolymarketWebSocket {
         self.sender.send(message).unwrap();
     }
 
-    /// Connect with structured message parsing
-    pub fn connect_structured(
+    pub fn connect(
         channel_type: String,
         auth: Option<serde_json::Value>,
         filter_ids: Vec<String>,
-        callback: StructuredMessageCallback,
+        callback: MessageCallback,
     ) -> Self {
         let (tx, _rx) = channel();
         let channel = channel_type.clone();
@@ -151,7 +150,7 @@ impl PolymarketWebSocket {
                     match msg_result {
                         Ok(msg) => {
                             // Parse and handle structured messages
-                            Self::handle_structured_message(&msg, &callback);
+                            Self::handle_message(&msg, &callback);
                             
                             // Respond to pings
                             if let Message::Ping(data) = msg {
@@ -176,7 +175,7 @@ impl PolymarketWebSocket {
         }
     }
 
-    fn handle_structured_message(msg: &Message, callback: &StructuredMessageCallback) {
+    fn handle_message(msg: &Message, callback: &MessageCallback) {
         if let Message::Text(text) = msg {
             let text_str = text.to_string();
             // Parse the JSON array (messages come as arrays)
@@ -230,14 +229,6 @@ impl PolymarketWebSocket {
             "price_change" => {
                 match serde_json::from_value::<PriceChangeMessage>(value) {
                     Ok(price_msg) => {
-                        // Debug log the changes to see what side they're on
-                        // for change in &price_msg.changes {
-                            // info!("🔍 WS Price Change: side={}, price={}, size={}", 
-                                //   change.side, change.price, change.size);
-                        // }
-                        // info!("💱 Price Change: {} changes for asset {}", 
-                        //         price_msg.changes.len(), 
-                        //         &price_msg.asset_id[..10]);
                         PolymarketWebSocketMessage::PriceChange(price_msg)
                     }
                     Err(e) => {

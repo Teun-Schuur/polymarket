@@ -6,7 +6,7 @@ use ratatui::{
 };
 
 use crate::app::App;
-use crate::data::{MarketStats, OrderBookData};
+use crate::data::{OrderBookData};
 
 pub fn render_tab_bar(f: &mut Frame, app: &App, area: Rect) {
     let tab_titles = vec!["Orderbook", "Price History"];
@@ -45,7 +45,7 @@ pub fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         .split(popup_layout[1])[1]
 }
 
-pub fn render_combined_market_header(f: &mut Frame, stats: &MarketStats, orderbook: &OrderBookData, ws_status: &str, area: Rect) {
+pub fn render_combined_market_header(f: &mut Frame, orderbook: &OrderBookData, ws_status: &str, area: Rect) {
     // Calculate decimal places based on tick size
     let decimal_places = if orderbook.tick_size >= 1.0 {
         0
@@ -64,7 +64,7 @@ pub fn render_combined_market_header(f: &mut Frame, stats: &MarketStats, orderbo
     let combined_info = format!(
         "{market_question} | Spread: {spread:.decimal_places$} | Tick: {tick_size:.decimal_places$} | Updated: {last_updated} | {ws_status}",
         market_question = market_question,
-        spread = stats.spread,
+        spread = orderbook.get_spread(),
         tick_size = orderbook.tick_size,
         last_updated = orderbook.last_updated.format("%H:%M:%S UTC"),
         ws_status = ws_status,

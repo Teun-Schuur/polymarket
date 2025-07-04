@@ -8,8 +8,12 @@ use ratatui::{
     symbols,
 };
 
-use crate::app::App;
-use crate::data::OrderBookData;
+use crate::{
+    app::App, 
+    config::CHART_NUM_DATES,
+    data::{CryptoPrice, OrderBookData}, 
+    websocket::CryptoSymbol
+};
 
 pub fn render_orderbook_plot(f: &mut Frame, orderbook: &mut OrderBookData, area: Rect) {
     let bids = &orderbook.bids;
@@ -215,7 +219,7 @@ pub fn render_price_history_chart(f: &mut Frame, orderbook: &OrderBookData, area
     let chart = Chart::new(datasets)
         .block(
             Block::default()
-                .title(format!("Price History - Current: {:.4}", orderbook.price_history.current_price().unwrap_or(orderbook.stats.mid_price)))
+                .title(format!("Price History - Current: {:.4}", orderbook.price_history.current_price().unwrap_or(orderbook.get_midpoint())))
                 .borders(Borders::ALL),
         )
         .x_axis(
@@ -244,14 +248,14 @@ pub fn render_price_history_chart(f: &mut Frame, orderbook: &OrderBookData, area
 
 pub fn render_crypto_chart_with_data(
     f: &mut Frame, 
-    crypto_data: Option<crate::data::CryptoPrice>, 
-    symbol: &crate::websocket::CryptoSymbol,
+    crypto_data: Option<CryptoPrice>, 
+    symbol: &CryptoSymbol,
     area: Rect
 ) {
     let (name, color, symbol_str) = match symbol {
-        crate::websocket::CryptoSymbol::Bitcoin => ("Bitcoin", Color::Rgb(255, 165, 0), "BTC"), // Orange
-        crate::websocket::CryptoSymbol::Ethereum => ("Ethereum", Color::Rgb(98, 126, 234), "ETH"), // Blue
-        crate::websocket::CryptoSymbol::Solana => ("Solana", Color::Rgb(138, 255, 255), "SOL"), // Cyan
+        CryptoSymbol::Bitcoin => ("Bitcoin", Color::Rgb(255, 165, 0), "BTC"), // Orange
+        CryptoSymbol::Ethereum => ("Ethereum", Color::Rgb(98, 126, 234), "ETH"), // Blue
+        CryptoSymbol::Solana => ("Solana", Color::Rgb(138, 255, 255), "SOL"), // Cyan
     };
     
     if crypto_data.is_none() {
@@ -320,7 +324,7 @@ pub fn render_crypto_chart_with_data(
 
 // Backward compatibility
 pub fn render_bitcoin_chart_with_data(f: &mut Frame, bitcoin_price_data: Option<crate::data::BitcoinPrice>, area: Rect) {
-    render_crypto_chart_with_data(f, bitcoin_price_data, &crate::websocket::CryptoSymbol::Bitcoin, area);
+    render_crypto_chart_with_data(f, bitcoin_price_data, &CryptoSymbol::Bitcoin, area);
 }
 
 pub fn render_market_price_history(f: &mut Frame, app: &App, area: Rect) {
@@ -359,10 +363,9 @@ pub fn render_market_price_history(f: &mut Frame, app: &App, area: Rect) {
         // Convert timestamps to DateTime for formatting
         // let min_date = chrono::DateTime::from_timestamp(min_time as i64, 0).unwrap_or_default();
         // let max_date = chrono::DateTime::from_timestamp(max_time as i64, 0).unwrap_or_default();
-        const NUM_DATES: u32 = 5;
         let mut dates: Vec<Span> = vec![];
-        for i in 0..NUM_DATES {
-            let fraction = i as f64 / (NUM_DATES - 1) as f64;
+        for i in 0..CHART_NUM_DATES {
+            let fraction = i as f64 / (CHART_NUM_DATES - 1) as f64;
             let timestamp = min_time + fraction * (max_time - min_time);
             if let Some(date) = chrono::DateTime::from_timestamp(timestamp as i64, 0) {
                 let formatted_date = date.format("%d/%m %H:%M").to_string();

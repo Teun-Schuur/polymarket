@@ -20,10 +20,11 @@ pub fn render_market_selector(f: &mut Frame, app: &App, area: Rect) {
         .split(area);
 
     // Render tabs
-    let tab_titles = vec!["All Markets", "Events"];
+    let tab_titles = vec!["All Markets", "Events", "Strategies"];
     let selected_tab_index = match app.market_selector_tab {
         MarketSelectorTab::AllMarkets => 0,
         MarketSelectorTab::Events => 1,
+        MarketSelectorTab::Strategies => 2,
     };
     
     let tabs = Tabs::new(tab_titles)
@@ -38,6 +39,7 @@ pub fn render_market_selector(f: &mut Frame, app: &App, area: Rect) {
     match app.market_selector_tab {
         MarketSelectorTab::AllMarkets => render_all_markets_list(f, app, chunks[1]),
         MarketSelectorTab::Events => render_events_list(f, app, chunks[1]),
+        MarketSelectorTab::Strategies => crate::ui::strategies::render_strategy_selector(f, app, chunks[1]),
     }
 }
 
@@ -227,7 +229,7 @@ pub fn render_token_selector(f: &mut Frame, app: &App, area: Rect) {
     let market_idx = app.filtered_markets[app.selected_market];
     let market = &app.markets[market_idx];
     
-    if market.tokens.is_empty() {
+    if market.token_ids.is_empty() {
         let empty_list = List::new(vec![ListItem::new("No tokens found")])
             .block(Block::default()
                 .borders(Borders::ALL)
@@ -236,42 +238,25 @@ pub fn render_token_selector(f: &mut Frame, app: &App, area: Rect) {
         return;
     }
     
-    // Since there are typically always 2 tokens, let's optimize for that
-    let total_items = market.tokens.len();
+    // Binary markets always have exactly 2 tokens
+    let mut items = Vec::with_capacity(2);
     
-    // Pre-allocate the items vector
-    let mut items = Vec::with_capacity(total_items);
-    
-    for (i, token) in market.tokens.iter().enumerate() {
+    for (i, outcome) in market.outcomes.iter().enumerate() {
         let style = if i == app.selected_token {
             Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
         } else {
             Style::default()
         };
         
-        // Show the token outcome with some additional formatting for prediction markets
-        let token_text = if total_items == 2 {
-            // For binary markets, show clear Yes/No or similar
-            match i {
-                0 => format!("► {}", token.outcome),
-                1 => format!("► {}", token.outcome),
-                _ => token.outcome.clone(),
-            }
-        } else {
-            format!("{}. {}", i + 1, token.outcome)
-        };
-        
-        items.push(ListItem::new(Line::from(vec![Span::styled(
-            token_text,
-            style,
-        )])));
+        let token_text = format!("► {outcome}");
+        items.push(ListItem::new(Line::from(vec![Span::styled(token_text, style)])));
     }
 
-    // Cache the title string with better formatting for binary markets
+    // Format title for binary market
     let title = if market.question.len() > 40 {
-        format!("Select Outcome - {}... ({} options)", &market.question[..37], total_items)
+        format!("Select Outcome - {}... (2 options)", &market.question[..37])
     } else {
-        format!("Select Outcome - {} ({} options)", market.question, total_items)
+        format!("Select Outcome - {} (2 options)", market.question)
     };
 
     let list = List::new(items)
@@ -283,27 +268,7 @@ pub fn render_token_selector(f: &mut Frame, app: &App, area: Rect) {
 
     f.render_widget(list, area);
     
-    // Since there are typically only 2 tokens, no need for scroll indicators
-    // But add them if there are more than can fit
-    let visible_height = area.height.saturating_sub(3) as usize;
-    if total_items > visible_height {
-        let scroll_indicator = format!(" {} of {} ", 
-            app.selected_token + 1, 
-            total_items
-        );
-        let indicator_width = scroll_indicator.len() as u16;
-        if indicator_width < area.width {
-            let indicator_area = Rect {
-                x: area.x + area.width - indicator_width - 1,
-                y: area.y,
-                width: indicator_width,
-                height: 1,
-            };
-            let indicator = Paragraph::new(scroll_indicator)
-                .style(Style::default().fg(Color::Cyan));
-            f.render_widget(indicator, indicator_area);
-        }
-    }
+    // No scroll indicators needed for binary markets (only 2 options)
 }
 
 pub fn render_event_market_selector(f: &mut Frame, app: &App, area: Rect) {
@@ -436,63 +401,26 @@ pub fn render_event_token_selector(f: &mut Frame, app: &App, area: Rect) {
     }
     
     let market = &markets[app.selected_market];
-    let token_ids = match &market.clob_token_ids {
-        Some(tokens) => tokens,
-        None => {
-            let empty_list = List::new(vec![ListItem::new("No tokens found")])
-                .block(Block::default()
-                    .borders(Borders::ALL)
-                    .title("Tokens (0 total)"));
-            f.render_widget(empty_list, area);
-            return;
-        }
-    };
     
-    if token_ids.is_empty() {
-        let empty_list = List::new(vec![ListItem::new("No tokens found")])
-            .block(Block::default()
-                .borders(Borders::ALL)
-                .title("Tokens (0 total)"));
-        f.render_widget(empty_list, area);
-        return;
-    }
+    // For binary markets, we always have exactly 2 tokens
+    let mut items = Vec::with_capacity(2);
     
-    let total_items = token_ids.len();
-    
-    // Pre-allocate the items vector
-    let mut items = Vec::with_capacity(total_items);
-    
-    // For event markets, we use outcomes if available, otherwise show token IDs
-    let outcomes = market.outcomes.as_ref();
-    
-    for (i, token_id) in token_ids.iter().enumerate() {
+    for (i, outcome) in market.outcomes.iter().enumerate() {
         let style = if i == app.selected_token {
             Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
         } else {
             Style::default()
         };
         
-        let token_text = if let Some(outcomes) = outcomes {
-            if i < outcomes.len() {
-                format!("► {}", outcomes[i])
-            } else {
-                format!("► Token {}: {}", i + 1, &token_id[..8])
-            }
-        } else {
-            format!("► Token {}: {}", i + 1, &token_id[..8])
-        };
-        
-        items.push(ListItem::new(Line::from(vec![Span::styled(
-            token_text,
-            style,
-        )])));
+        let token_text = format!("► {outcome}");
+        items.push(ListItem::new(Line::from(vec![Span::styled(token_text, style)])));
     }
 
-    // Cache the title string
+    // Format title for binary market
     let title = if market.question.len() > 40 {
-        format!("Select Outcome - {}... ({} options)", &market.question[..37], total_items)
+        format!("Select Outcome - {}... (2 options)", &market.question[..37])
     } else {
-        format!("Select Outcome - {} ({} options)", market.question, total_items)
+        format!("Select Outcome - {} (2 options)", market.question)
     };
 
     let list = List::new(items)
@@ -503,25 +431,4 @@ pub fn render_event_token_selector(f: &mut Frame, app: &App, area: Rect) {
         .highlight_style(Style::default().bg(Color::DarkGray));
 
     f.render_widget(list, area);
-    
-    // Show scroll indicator if needed
-    let visible_height = area.height.saturating_sub(3) as usize;
-    if total_items > visible_height {
-        let scroll_indicator = format!(" {} of {} ", 
-            app.selected_token + 1, 
-            total_items
-        );
-        let indicator_width = scroll_indicator.len() as u16;
-        if indicator_width < area.width {
-            let indicator_area = Rect {
-                x: area.x + area.width - indicator_width - 1,
-                y: area.y,
-                width: indicator_width,
-                height: 1,
-            };
-            let indicator = Paragraph::new(scroll_indicator)
-                .style(Style::default().fg(Color::Cyan));
-            f.render_widget(indicator, indicator_area);
-        }
     }
-}

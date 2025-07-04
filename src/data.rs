@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use std::time::Instant;
+use crate::config::{HIGHLIGHT_DURATION_MS, MAX_PRICE_HISTORY_POINTS};
 
 #[derive(Debug, Clone)]
 pub struct SimpleOrder {
@@ -23,8 +24,8 @@ impl SimpleOrder {
             price,
             size,
             previous_size: size,
-            change_direction: OrderChangeDirection::None,
-            change_timestamp: None,
+            change_direction: OrderChangeDirection::Increase,
+            change_timestamp: Some(Instant::now()),
         }
     }
     
@@ -44,7 +45,7 @@ impl SimpleOrder {
     
     pub fn should_highlight(&self) -> bool {
         if let Some(timestamp) = self.change_timestamp {
-            timestamp.elapsed().as_millis() < 1000 // Highlight for 1 second
+            timestamp.elapsed().as_millis() < HIGHLIGHT_DURATION_MS
         } else {
             false
         }
@@ -52,7 +53,7 @@ impl SimpleOrder {
     
     pub fn clear_highlight_if_expired(&mut self) {
         if let Some(timestamp) = self.change_timestamp {
-            if timestamp.elapsed().as_millis() >= 1000 {
+            if timestamp.elapsed().as_millis() >= HIGHLIGHT_DURATION_MS {
                 self.change_direction = OrderChangeDirection::None;
                 self.change_timestamp = None;
             }
@@ -60,32 +61,6 @@ impl SimpleOrder {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct MarketStats {
-    pub total_volume: f64,
-    pub volume_24h: f64,
-    pub spread: f64,
-    pub mid_price: f64,
-    pub best_bid: f64,
-    pub best_ask: f64,
-    pub total_bid_size: f64,
-    pub total_ask_size: f64,
-}
-
-impl Default for MarketStats {
-    fn default() -> Self {
-        Self {
-            total_volume: 0.0,
-            volume_24h: 0.0,
-            spread: 0.0,
-            mid_price: 0.0,
-            best_bid: 0.0,
-            best_ask: 0.0,
-            total_bid_size: 0.0,
-            total_ask_size: 0.0,
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct OrderBookData {
@@ -93,12 +68,29 @@ pub struct OrderBookData {
     pub market_question: String,
     pub bids: Vec<SimpleOrder>,
     pub asks: Vec<SimpleOrder>,
-    pub stats: MarketStats,
     pub tick_size: f64,
     pub last_updated: DateTime<Utc>,
     pub chart_center_price: Option<f64>,
     pub chart_needs_recentering: bool,
     pub price_history: PriceHistory,
+}
+
+impl OrderBookData {
+    pub fn get_spread(&self) -> f64 {
+        if let (Some(best_bid), Some(best_ask)) = (self.bids.first(), self.asks.first()) {
+            best_ask.price - best_bid.price
+        } else {
+            0.0
+        }
+    }
+
+    pub fn get_midpoint(&self) -> f64 {
+        if let (Some(best_bid), Some(best_ask)) = (self.bids.first(), self.asks.first()) {
+            (best_bid.price + best_ask.price) / 2.0
+        } else {
+            0.0
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -138,7 +130,8 @@ impl PriceHistory {
         
         // Only add if price is different from the last point (avoid duplicates)
         if let Some(last_point) = self.points.last() {
-            if (last_point.price - price).abs() < f64::EPSILON {
+            if last_point.price == price && last_point.timestamp.date_naive() == now.date_naive() {
+                // If the last point is from today and has the same price, skip adding
                 return;
             }
         }
@@ -204,7 +197,7 @@ impl CryptoPrice {
             symbol,
             price: 0.0,
             timestamp: Utc::now(),
-            history: PriceHistory::new(300), // Store last 300 points
+            history: PriceHistory::new(MAX_PRICE_HISTORY_POINTS),
         }
     }
     

@@ -7,12 +7,24 @@ impl App {
     // Basic navigation methods
     pub fn select_market(&mut self) {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
-            self.selected_token = 0;
-            self.token_scroll_offset = 0;
-            self.show_market_selector = false;
-            self.show_token_selector = true;
-            self.search_mode = false;
-            self.needs_redraw = true;
+            // Check if we're in strategy selection mode
+            if self.strategy_selection_mode {
+                // Add the current market to the strategy and return to runner
+                self.add_current_market_to_strategy();
+                self.show_market_selector = false;
+                self.show_strategy_runner = true;
+                self.strategy_selection_mode = false;
+                self.search_mode = false;
+                self.needs_redraw = true;
+            } else {
+                // Normal market selection - go to token selector
+                self.selected_token = 0;
+                self.token_scroll_offset = 0;
+                self.show_market_selector = false;
+                self.show_token_selector = true;
+                self.search_mode = false;
+                self.needs_redraw = true;
+            }
         }
     }
 
@@ -20,7 +32,7 @@ impl App {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
             let market_idx = self.filtered_markets[self.selected_market];
             let market = &self.markets[market_idx];
-            if self.selected_token < market.tokens.len() {
+            if self.selected_token < market.token_ids.len() {
                 self.show_token_selector = false;
                 self.needs_redraw = true;
                 // We'll load the orderbook in the main loop
@@ -69,8 +81,8 @@ impl App {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
             let market_idx = self.filtered_markets[self.selected_market];
             let market = &self.markets[market_idx];
-            if !market.tokens.is_empty() {
-                self.selected_token = (self.selected_token + 1) % market.tokens.len();
+            if !market.token_ids.is_empty() {
+                self.selected_token = (self.selected_token + 1) % market.token_ids.len();
                 self.needs_redraw = true;
             }
         }
@@ -80,9 +92,9 @@ impl App {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
             let market_idx = self.filtered_markets[self.selected_market];
             let market = &self.markets[market_idx];
-            if !market.tokens.is_empty() {
+            if !market.token_ids.is_empty() {
                 self.selected_token = if self.selected_token == 0 {
-                    market.tokens.len() - 1
+                    market.token_ids.len() - 1
                 } else {
                     self.selected_token - 1
                 };
@@ -95,11 +107,11 @@ impl App {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
             let market_idx = self.filtered_markets[self.selected_market];
             let market = &self.markets[market_idx];
-            if !market.tokens.is_empty() {
+            if !market.token_ids.is_empty() {
                 let page_size = 10; // Adjust based on terminal height
                 self.selected_token = std::cmp::min(
                     self.selected_token + page_size,
-                    market.tokens.len() - 1
+                    market.token_ids.len() - 1
                 );
                 self.needs_redraw = true;
             }
@@ -127,8 +139,8 @@ impl App {
         if !self.filtered_markets.is_empty() && self.selected_market < self.filtered_markets.len() {
             let market_idx = self.filtered_markets[self.selected_market];
             let market = &self.markets[market_idx];
-            if self.selected_token < market.tokens.len() {
-                return Some(market.tokens[self.selected_token].token_id.clone());
+            if self.selected_token < market.token_ids.len() {
+                return Some(market.token_ids[self.selected_token].clone());
             }
         }
         None
@@ -159,12 +171,24 @@ impl App {
     // Event navigation
     pub fn select_event(&mut self) {
         if !self.filtered_events.is_empty() && self.selected_event < self.filtered_events.len() {
-            self.show_market_selector = false;
-            self.show_event_market_selector = true;
-            self.selected_token = 0;
-            self.token_scroll_offset = 0;
-            self.search_mode = false;
-            self.needs_redraw = true;
+            // Check if we're in strategy selection mode
+            if self.strategy_selection_mode {
+                // Add the current event to the strategy and return to runner
+                self.add_current_event_to_strategy();
+                self.show_market_selector = false;
+                self.show_strategy_runner = true;
+                self.strategy_selection_mode = false;
+                self.search_mode = false;
+                self.needs_redraw = true;
+            } else {
+                // Normal event selection - go to event markets
+                self.show_market_selector = false;
+                self.show_event_market_selector = true;
+                self.selected_token = 0;
+                self.token_scroll_offset = 0;
+                self.search_mode = false;
+                self.needs_redraw = true;
+            }
         }
     }
 
@@ -186,12 +210,10 @@ impl App {
             if let Some(ref markets) = event.markets {
                 if self.selected_market < markets.len() {
                     let market = &markets[self.selected_market];
-                    if let Some(ref token_ids) = market.clob_token_ids {
-                        if self.selected_token < token_ids.len() {
-                            cli_log::debug!("Event market token retrieval: event={}, market={}, token={}, token_id={}", 
-                                          self.selected_event, self.selected_market, self.selected_token, token_ids[self.selected_token]);
-                            return Some(token_ids[self.selected_token].clone());
-                        }
+                    if self.selected_token < market.token_ids.len() {
+                        cli_log::debug!("Event market token retrieval: event={}, market={}, token={}, token_id={}", 
+                                        self.selected_event, self.selected_market, self.selected_token, market.token_ids[self.selected_token]);
+                        return Some(market.token_ids[self.selected_token].clone());
                     }
                 }
             }
@@ -277,11 +299,9 @@ impl App {
             if let Some(ref markets) = event.markets {
                 if self.selected_market < markets.len() {
                     let market = &markets[self.selected_market];
-                    if let Some(ref token_ids) = market.clob_token_ids {
-                        if !token_ids.is_empty() {
-                            self.selected_token = (self.selected_token + 1) % token_ids.len();
-                            self.needs_redraw = true;
-                        }
+                    if !market.token_ids.is_empty() {
+                        self.selected_token = (self.selected_token + 1) % market.token_ids.len();
+                        self.needs_redraw = true;
                     }
                 }
             }
@@ -296,16 +316,15 @@ impl App {
             if let Some(ref markets) = event.markets {
                 if self.selected_market < markets.len() {
                     let market = &markets[self.selected_market];
-                    if let Some(ref token_ids) = market.clob_token_ids {
-                        if !token_ids.is_empty() {
-                            self.selected_token = if self.selected_token == 0 {
-                                token_ids.len() - 1
-                            } else {
-                                self.selected_token - 1
-                            };
-                            self.needs_redraw = true;
-                        }
+                    if !market.token_ids.is_empty() {
+                        self.selected_token = if self.selected_token == 0 {
+                            market.token_ids.len() - 1
+                        } else {
+                            self.selected_token - 1
+                        };
+                        self.needs_redraw = true;
                     }
+                    
                 }
             }
         }

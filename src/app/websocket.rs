@@ -7,10 +7,13 @@ use std::{
 };
 use cli_log::*;
 
-use crate::data::{OrderBookData, SimpleOrder};
+use crate::{
+    config::{WS_MAX_ATTEMPTS, WS_RECONNECT_DELAY_SECS},
+    data::{OrderBookData, SimpleOrder}
+};
 use crate::websocket::{
     BookMessage, LastTradePriceMessage, PolymarketWebSocket, PolymarketWebSocketMessage,
-    PriceChangeMessage, StructuredMessageCallback,
+    PriceChangeMessage, MessageCallback,
 };
 use super::core::App;
 
@@ -119,7 +122,7 @@ fn apply_book_update_static(orderbook: &mut OrderBookData, book_msg: &BookMessag
     orderbook.chart_needs_recentering = true; // Re-center chart on updates
     
     // Recalculate market stats and update price history
-    update_orderbook_stats_and_history(orderbook);
+    orderbook.price_history.add_price(orderbook.get_midpoint());
     
     Ok(())
 }
@@ -160,38 +163,25 @@ fn apply_price_changes_static(orderbook: &mut OrderBookData, price_msg: &PriceCh
     
     orderbook.last_updated = chrono::Utc::now();
     orderbook.chart_needs_recentering = true;
-    update_orderbook_stats_and_history(orderbook);
-    
+
+    orderbook.price_history.add_price(orderbook.get_midpoint());    
     Ok(())
 }
 
 fn apply_trade_update_static(orderbook: &mut OrderBookData, _trade_msg: &LastTradePriceMessage) -> Result<()> {
     orderbook.last_updated = chrono::Utc::now();
-    update_orderbook_stats_and_history(orderbook);
+    orderbook.price_history.add_price(orderbook.get_midpoint());
     Ok(())
 }
 
-fn update_orderbook_stats_and_history(orderbook: &mut OrderBookData) {
-    orderbook.stats = super::stats::calculate_market_stats(&orderbook.bids, &orderbook.asks);
-    
-    // Add current midpoint to price history
-    let mid_price = orderbook.stats.mid_price;
-    if mid_price > 0.0 {
-        orderbook.price_history.add_price(mid_price);
-    }
-}
-
 fn try_reconnect_websocket(app: &mut App, token_id: &str) {
-    const MAX_ATTEMPTS: u32 = 5;
-    const DELAY: Duration = Duration::from_secs(10);
-    
-    if app.websocket_reconnect_attempts >= MAX_ATTEMPTS 
-        || app.last_websocket_attempt.elapsed() < DELAY {
+    if app.websocket_reconnect_attempts >= WS_MAX_ATTEMPTS 
+        || app.last_websocket_attempt.elapsed() < Duration::from_secs(WS_RECONNECT_DELAY_SECS) {
         return;
     }
     
     info!("Reconnecting WebSocket (attempt {}/{})", 
-          app.websocket_reconnect_attempts + 1, MAX_ATTEMPTS);
+          app.websocket_reconnect_attempts + 1, WS_MAX_ATTEMPTS);
     
     app.websocket_reconnect_attempts += 1;
     app.last_websocket_attempt = Instant::now();
@@ -210,7 +200,7 @@ fn start_websocket_for_token(app: &mut App, token_id: &str) {
     let updates_arc: Arc<Mutex<Vec<PolymarketWebSocketMessage>>> = Arc::clone(&app.websocket_updates);
     let token_id_owned = token_id.to_string();
     
-    let callback: StructuredMessageCallback = Box::new(move |msg| {
+    let callback: MessageCallback = Box::new(move |msg| {
         let message_matches = match &msg {
             PolymarketWebSocketMessage::Book(book_msg) => book_msg.asset_id == token_id_owned,
             PolymarketWebSocketMessage::PriceChange(price_msg) => price_msg.asset_id == token_id_owned,
@@ -230,7 +220,7 @@ fn start_websocket_for_token(app: &mut App, token_id: &str) {
         }
     });
     
-    app.current_websocket = Some(PolymarketWebSocket::connect_structured(
+    app.current_websocket = Some(PolymarketWebSocket::connect(
         "market".into(),
         None,
         vec![token_id.to_string()],

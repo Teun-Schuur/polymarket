@@ -1,7 +1,7 @@
 //! Core application logic and initialization
 
 use anyhow::Result;
-use polymarket_rs_client::{ClobClient, Event, Market};
+use polymarket_rs_client::{ClobClient, Event, GammaMarket};
 use rust_decimal::prelude::*;
 use std::{
     collections::HashMap,
@@ -11,7 +11,12 @@ use std::{
 };
 use cli_log::*;
 
-use crate::data::{OrderBookData, SimpleOrder, PriceHistory};
+use crate::{
+    bot::BotEngine,
+    config::{POLYMARKET_HOST, POLYMARKET_GAMMA_HOST, POLYGON_CHAIN_ID, MAX_EVENTS, PRICE_HISTORY_UPDATE_INTERVAL_MS},
+    data::{OrderBookData, PriceHistory, SimpleOrder}, 
+    get_midpoint_from_slices
+};
 use crate::websocket::{PolymarketWebSocket, PolymarketWebSocketMessage};
 use super::types::{SelectedTab, MarketSelectorTab};
 
@@ -19,7 +24,7 @@ pub struct App {
     // Core client and data
     pub client: ClobClient,
     pub orderbook: Option<OrderBookData>,
-    pub markets: Vec<Market>,
+    pub markets: Vec<GammaMarket>,
     pub events: Vec<Event>,
     
     // Filtering and selection state
@@ -44,6 +49,8 @@ pub struct App {
     pub search_query: String,
     pub search_mode: bool,
     pub error_message: Option<String>,
+    pub status_message: Option<String>, // For success/info messages
+    pub status_message_time: Option<Instant>, // When the status message was set
     
     // Timing and updates
     pub last_update: Instant,
@@ -63,11 +70,16 @@ pub struct App {
     pub websocket_reconnect_attempts: u32,
     pub last_websocket_attempt: Instant,
     
-    // Bitcoin price tracking (backward compatibility)
-    pub bitcoin_price: Option<Arc<Mutex<crate::data::BitcoinPrice>>>,
     // Multi-crypto price tracking
     pub crypto_prices: std::collections::HashMap<crate::websocket::CryptoSymbol, Arc<Mutex<crate::data::CryptoPrice>>>,
     pub crypto_websocket_active: std::collections::HashMap<crate::websocket::CryptoSymbol, bool>,
+    
+    // Bot engine for strategy execution
+    pub bot_engine: BotEngine,
+    pub show_strategy_selector: bool,
+    pub show_strategy_runner: bool,
+    pub selected_strategy: usize,
+    pub strategy_selection_mode: bool, // True when we're picking markets/events for a strategy
 }
 
 impl App {
@@ -78,12 +90,7 @@ impl App {
                 private_key_env
             ))?;
 
-        const HOST: &str = "https://clob.polymarket.com";
-        const HOST_GAMMA: &str = "https://gamma-api.polymarket.com";
-
-        const POLYGON: u64 = 137;
-        
-        let mut client = ClobClient::with_l1_headers(HOST, HOST_GAMMA, &private_key, POLYGON);
+        let mut client = ClobClient::with_l1_headers(POLYMARKET_HOST, POLYMARKET_GAMMA_HOST, &private_key, POLYGON_CHAIN_ID);
         
         // Create or derive API key
         let nonce = None;
@@ -113,6 +120,8 @@ impl App {
             update_interval: Duration::from_secs_f64(interval),
             depth,
             error_message: None,
+            status_message: None,
+            status_message_time: None,
             search_query: String::new(),
             search_mode: false,
             needs_redraw: true,
@@ -124,75 +133,24 @@ impl App {
             websocket_reconnect_attempts: 0,
             last_websocket_attempt: Instant::now(),
             last_price_history_update: Instant::now(),
-            price_history_update_interval: Duration::from_secs(1),
-            bitcoin_price: None,
+            price_history_update_interval: Duration::from_millis(PRICE_HISTORY_UPDATE_INTERVAL_MS),
             crypto_prices: HashMap::new(),
             crypto_websocket_active: HashMap::new(),
+            
+            // Bot engine
+            bot_engine: BotEngine::new(),
+            show_strategy_selector: false,
+            show_strategy_runner: false,
+            selected_strategy: 0,
+            strategy_selection_mode: false,
         })
     }
 
     pub async fn load_markets(&mut self) -> Result<()> {
+        self.events.clear();
         self.markets.clear();
-        let mut cursor = String::new(); // Start with empty cursor
-        const MAX_MARKETS: usize = 5000; // Limit to prevent excessive memory usage
-        
-        loop {
-            // Make request with current cursor
-            let cursor_param = if cursor.is_empty() { None } else { Some(cursor.as_str()) };
-            
-            match self.client.get_sampling_markets(cursor_param).await {
-                Ok(response) => {                    
-                    // Extend markets with the new data
-                    self.markets.extend(response.data);
-
-                    // Check if we have a next_cursor to continue
-                    if let Some(next_cursor) = response.next_cursor.as_deref() {
-                        // Check if we've reached the end (cursor is "LTE=" or empty)
-                        if next_cursor == "LTE=" || next_cursor.is_empty() {
-                            info!("Reached end of markets pagination");
-                            break;
-                        }
-                        
-                        // Check if we've hit our limit
-                        let total_loaded = self.markets.len();
-                        if total_loaded >= MAX_MARKETS {
-                            info!("Reached maximum market limit ({MAX_MARKETS}), stopping pagination");
-                            break;
-                        }
-                        
-                        cursor = next_cursor.to_string();
-                        info!("Loading next batch of markets... (total so far: {total_loaded})");
-                    } else {
-                        // No next_cursor found, we're done
-                        break;
-                    }
-                }
-                Err(e) => {
-                    // If this is the first request, try with fallback
-                    if cursor.is_empty() {
-                        warn!("Failed to load markets without cursor, trying with '20' parameter");
-                        match self.client.get_sampling_markets(Some("20")).await {
-                            Ok(sampling_markets) => {
-                                // Ignore the result and continue the loop or just return Ok(())
-                                self.markets.extend(sampling_markets.data);
-                                return Ok(());
-                            }
-                            Err(e2) => {
-                                self.error_message = Some(format!("Failed to load markets: {e2}"));
-                                return Ok(());
-                            }
-                        }
-                    } else {
-                        // Error on subsequent request, stop pagination
-                        warn!("Error during pagination: {e:?}");
-                        break;
-                    }
-                }
-            }
-        }
 
         let mut index = 0;
-        const MAX_EVENTS: usize = 5000; // Limit to prevent excessive memory usage
         loop {
             match self.client.get_gamma_events(Some(index), Some(500)).await {
                 Ok(events) => {
@@ -202,12 +160,10 @@ impl App {
                     // Extend events with the new data
                     self.events.extend(events);
                     let tot_events = self.events.len();
-
-                    info!("Loaded {num_events} gamma events starting from index {index}");
                     
                     // Check if we have more events to load
                     if num_events < 500 || tot_events >= MAX_EVENTS {
-                        info!("Reached end of gamma events pagination or max limit reached");
+                        info!("Reached end of gamma events pagination or max limit reached: {tot_events} total events loaded");
                         break;
                     }
                     
@@ -220,37 +176,25 @@ impl App {
                 }
             }
         }
-
-        // Finalize the markets list
-        self.finalize_markets_loading();
-        
-        info!("Successfully loaded {} markets total", self.markets.len());
-        Ok(())
-    }
-
-    pub fn prune_empty_events(&mut self) {
-        // Remove markets inside events that are no longer active or are closed
-        self.events.retain_mut(|event| {
-            if let Some(markets) = &mut event.markets {
-                // Filter out markets that are closed or inactive
-                markets.retain(|m| m.active && !m.closed && m.uma_resolution_statuses.as_ref().unwrap_or(&Vec::new()).is_empty());
-                
-                // Keep the event if it has any active markets left
-                !markets.is_empty()
-            } else {
-                false // If no markets, remove the event
-            }
-        });
-    }
-
-    fn finalize_markets_loading(&mut self) {
-        // Sort markets alphabetically by question
-        self.markets.sort_by(|a, b| a.question.to_lowercase().cmp(&b.question.to_lowercase()));
         
         // prune empty events
         self.prune_empty_events();
-        // Sort events alphabetically by title
-        self.events.sort_by(|a, b| a.title.to_lowercase().cmp(&b.title.to_lowercase()));
+        // Sort events by volume
+        self.events.sort_by(|a, b| b.volume.unwrap_or(0.0)
+            .partial_cmp(&a.volume.unwrap_or(0.0))
+            .unwrap_or(std::cmp::Ordering::Equal));
+        
+        // Load all markets from the events
+        for event in &self.events {
+            if let Some(markets) = &event.markets {
+                self.markets.extend(markets.clone());
+            }
+        }
+
+        // Sort markets by volume
+        self.markets.sort_by(|a, b| b.volume.unwrap_or(Decimal::ZERO)
+            .partial_cmp(&a.volume.unwrap_or(Decimal::ZERO))
+            .unwrap_or(std::cmp::Ordering::Equal));
         
         // Initialize filtered markets and events with all indices
         self.update_filtered_markets();
@@ -267,7 +211,25 @@ impl App {
             self.event_scroll_offset = 0;
         }
         
-        self.error_message = None;
+        self.error_message = None;        
+        info!("Successfully loaded {} markets total", self.markets.len());
+        Ok(())
+    }
+
+        
+    pub fn prune_empty_events(&mut self) {
+        // Remove markets inside events that are no longer active or are closed
+        self.events.retain_mut(|event| {
+            if let Some(markets) = &mut event.markets {
+                // Filter out markets that are closed or inactive
+                markets.retain(|m| m.active && !m.closed && m.uma_resolution_statuses.as_ref().unwrap_or(&Vec::new()).is_empty());
+                
+                // Keep the event if it has any active markets left
+                !markets.is_empty()
+            } else {
+                false // If no markets, remove the event
+            }
+        });
     }
 
     pub fn update_filtered_markets(&mut self) {
@@ -344,10 +306,12 @@ impl App {
                 // Find market details
                 let market_question = self.markets
                     .iter()
-                    .find(|m| m.tokens.iter().any(|t| t.token_id == token_id))
-                    .map(|m| {
-                        let token = m.tokens.iter().find(|t| t.token_id == token_id).unwrap();
-                        format!("{} - {}", m.question, token.outcome)
+                    .find(|m| m.token_ids.iter().any(|t| t == token_id))
+                    .and_then(|m| {
+                        m.token_ids.iter()
+                            .position(|t| t == token_id)
+                            .and_then(|index| m.outcomes.get(index))
+                            .map(|outcome| format!("{} - {}", m.question, outcome))
                     })
                     .unwrap_or_else(|| token_id.to_string());
 
@@ -381,18 +345,13 @@ impl App {
                 // Get tick size from API
                 let tick_size = self.get_tick_size_for_token(token_id).await;
 
-                // Calculate market statistics with real API data
-                let stats = super::stats::calculate_market_stats(&bids, &asks);
-
                 // Preserve existing price history if updating the same token
                 let price_history = if let Some(ref existing_orderbook) = self.orderbook {
                     if existing_orderbook.token_id == token_id {
                         // Keep existing price history and add new midpoint
                         let mut history = existing_orderbook.price_history.clone();
-                        let mid_price = stats.mid_price;
-                        if mid_price > 0.0 {
-                            history.add_price(mid_price);
-                        }
+                        let mid_price = get_midpoint_from_slices(&bids, &asks);
+                        history.add_price(mid_price);
                         history
                     } else {
                         // Different token, start fresh
@@ -408,7 +367,6 @@ impl App {
                     market_question,
                     bids,
                     asks,
-                    stats,
                     tick_size,
                     last_updated: chrono::Utc::now(),
                     chart_center_price: None,
@@ -429,6 +387,9 @@ impl App {
     }
 
     pub async fn update(&mut self) -> Result<()> {
+        // Clear old status messages
+        self.clear_old_status_message();
+        
         // Process WebSocket updates for real-time data
         if let Err(e) = self.process_websocket_updates() {
             warn!("WebSocket update failed: {e}");
@@ -459,6 +420,13 @@ impl App {
         super::price_history::update_price_history_if_needed(self);
         super::price_history::update_crypto_prices_if_needed(self);
         
+        // Process orderbook with bot engine
+        if let Some(ref orderbook) = self.orderbook {
+            if let Err(e) = self.bot_engine.process_orderbook(orderbook) {
+                warn!("Bot engine processing failed: {e}");
+            }
+        }
+        
         Ok(())
     }
     
@@ -482,5 +450,32 @@ impl App {
     fn process_websocket_updates(&mut self) -> Result<()> {
         // Delegate to websocket module
         super::websocket::process_websocket_updates(self)
+    }
+
+    pub fn update_price_history_if_needed(&mut self) {
+        // This will be called periodically to update price history
+        if super::price_history::should_update_price_history(self) {
+            if let Some(ref mut orderbook) = self.orderbook {
+                let midpoint = orderbook.get_midpoint();
+                orderbook.price_history.add_price(midpoint);
+                self.last_price_history_update = Instant::now();
+            }
+        }
+    }
+
+    pub fn set_status_message(&mut self, message: String) {
+        self.status_message = Some(message);
+        self.status_message_time = Some(Instant::now());
+        self.needs_redraw = true;
+    }
+    
+    pub fn clear_old_status_message(&mut self) {
+        if let Some(time) = self.status_message_time {
+            if time.elapsed() > Duration::from_secs(3) { // Clear after 3 seconds
+                self.status_message = None;
+                self.status_message_time = None;
+                self.needs_redraw = true;
+            }
+        }
     }
 }

@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use serde_json::Value;
 use cli_log::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -102,28 +101,14 @@ impl CryptoWebSocket {
                         }
                     }
                     WebsocketEvent::DayTicker(ticker_data) => {
-                        // Fallback to day ticker if available
-                        if let Ok(price) = ticker_data.current_close.parse::<f64>() {
-                            if let Ok(mut price_map) = prices.lock() {
-                                price_map.insert(symbol_clone.clone(), price);
-                            }                            
-                        }
+                       warn!("Received DayTicker event for {name}: {ticker_data:?}");
                     }
                     _ => {
-                        // Handle unexpected events or raw JSON
-                        if let Ok(json_str) = serde_json::to_string(&event) {
-                            if let Ok(json_value) = serde_json::from_str::<Value>(&json_str) {
-                                // Try to extract price from different possible fields
-                                if let Some(price) = json_value.get("c").and_then(|p| p.as_str()).and_then(|s| s.parse::<f64>().ok()) {
-                                    if let Ok(mut price_map) = prices.lock() {
-                                        price_map.insert(symbol_clone.clone(), price);
-                                    }
-                                } else if let Some(price) = json_value.get("b").and_then(|p| p.as_str()).and_then(|s| s.parse::<f64>().ok()) {
-                                    if let Ok(mut price_map) = prices.lock() {
-                                        price_map.insert(symbol_clone.clone(), price);
-                                    }
-                                }
-                            }
+                        warn!("Unexpected event received for {name}: {event:?}");
+                        if let Ok(json) = serde_json::to_string(&event) {
+                            warn!("Raw JSON event: {json}");
+                        } else {
+                            warn!("Failed to serialize event to JSON");
                         }
                     }
                 }
@@ -189,6 +174,3 @@ impl Drop for CryptoWebSocket {
         self.stop();
     }
 }
-
-// Backward compatibility
-pub use self::CryptoWebSocket as BitcoinWebSocket;

@@ -9,8 +9,8 @@ use ratatui::{
 
 use cli_log::*;
 
-use crate::app::App;
-use crate::data::{MarketStats, OrderBookData, SimpleOrder, OrderChangeDirection};
+use crate::{app::App};
+use crate::data::{ OrderBookData, SimpleOrder, OrderChangeDirection};
 use super::{charts::{render_orderbook_plot, render_price_history_chart, render_crypto_chart_with_data}, components::render_combined_market_header};
 use crate::websocket::CryptoSymbol;
 
@@ -30,7 +30,7 @@ pub fn render_orderbook(f: &mut Frame, app: &mut App, area: Rect) {
         } else {
             "🔴 API Only"
         };
-        render_combined_market_header(f, &orderbook.stats, orderbook, ws_status, chunks[0]);
+        render_combined_market_header(f, orderbook, ws_status, chunks[0]);
 
         // Main orderbook content with plot
         let main_chunks = Layout::default()
@@ -72,17 +72,9 @@ pub fn render_orderbook(f: &mut Frame, app: &mut App, area: Rect) {
         
         let chart_chunks = if crypto_count > 0 {
             // Multiple charts: Crypto charts + Price history + Depth chart
-            let mut constraints = Vec::new();
-            
-            // Each crypto chart gets equal space at the top
-            for _ in 0..crypto_count {
-                constraints.push(Constraint::Percentage(20));
-            }
-            
-            // Price history and orderbook split the remaining space
-            let remaining = 100 - (crypto_count * 20) as u16;
-            constraints.push(Constraint::Percentage(remaining / 2)); // Price history
-            constraints.push(Constraint::Percentage(remaining / 2)); // Orderbook depth
+            // Each crypto gets its own chart, then price history and depth chart
+            // All charts are equal height
+            let constraints = vec![Constraint::Percentage((100 / (crypto_count + 2)).try_into().unwrap()); crypto_count + 2];
             
             Layout::default()
                 .direction(Direction::Vertical)
@@ -185,7 +177,7 @@ pub fn render_order_side(
     f.render_widget(table, area);
 }
 
-pub fn render_market_stats(f: &mut Frame, stats: &MarketStats, orderbook: &OrderBookData, ws_status: &str, area: Rect) {
+pub fn render_market_stats(f: &mut Frame, orderbook: &OrderBookData, ws_status: &str, area: Rect) {
     // Calculate decimal places based on tick size
     let decimal_places = if orderbook.tick_size >= 1.0 {
         0
@@ -196,7 +188,7 @@ pub fn render_market_stats(f: &mut Frame, stats: &MarketStats, orderbook: &Order
     
     let stats_lines = [
         format!("Spread: {spread:.decimal_places$} | Tick Size: {tick_size:.decimal_places$}  |  Last Updated: {last_updated}  |  Data Source: {ws_status}", 
-                spread = stats.spread, 
+                spread = orderbook.get_spread(), 
                 tick_size = orderbook.tick_size, 
                 last_updated = orderbook.last_updated.format("%H:%M:%S UTC"),
                 ws_status = ws_status,

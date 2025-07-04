@@ -8,7 +8,7 @@ pub use clob::{
     PolymarketWebSocket, 
     PolymarketWebSocketMessage,
     PriceChangeMessage,
-    StructuredMessageCallback,
+    MessageCallback,
 };
 
 pub use crypto::{CryptoWebSocket, CryptoSymbol};
